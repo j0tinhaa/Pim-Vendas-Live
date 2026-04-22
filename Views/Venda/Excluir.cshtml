@@ -1,0 +1,58 @@
+@model PimVendas.Models.VendaModel
+@using PimVendas.Models
+
+@{
+    ViewData["Title"] = "Excluir Venda";
+}
+
+<div class="container" style="max-width: 600px;">
+    <div class="bg-dark p-4 p-md-5 rounded-4 border border-danger border-opacity-25">
+
+        <div class="mb-4 text-center">
+            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+            <h1 class="text-white fs-3 mt-2">Confirmar Exclusão</h1>
+            <p class="text-muted">Essa ação não poderá ser desfeita.</p>
+        </div>
+
+        <!-- Dados somente leitura para confirmar ao usuário o que será excluído -->
+        <div class="mb-4 p-3 rounded-3" style="background: rgba(255,77,77,0.07); border: 1px solid rgba(255,77,77,0.2);">
+            <dl class="row mb-0 text-light">
+                <dt class="col-sm-4 text-muted">Cliente</dt>
+                <dd class="col-sm-8">@Model.Cliente</dd>
+
+                <dt class="col-sm-4 text-muted">Código</dt>
+                <dd class="col-sm-8"><code class="text-pink">@Model.CodigoProduto</code></dd>
+
+                <dt class="col-sm-4 text-muted">Produto</dt>
+                <dd class="col-sm-8">@Model.Produto</dd>
+
+                <dt class="col-sm-4 text-muted">Valor</dt>
+                <dd class="col-sm-8">@Model.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</dd>
+
+                <dt class="col-sm-4 text-muted">Status</dt>
+                <dd class="col-sm-8">@Model.Status</dd>
+
+                <dt class="col-sm-4 text-muted">Data</dt>
+                <dd class="col-sm-8">@Model.DataVenda.ToString("dd/MM/yyyy HH:mm")</dd>
+            </dl>
+        </div>
+
+        <!-- Formulário envia APENAS o Id — sem depender de campos disabled -->
+        <form method="post" asp-controller="Venda" asp-action="Excluir">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-danger w-50 fw-semibold">
+                    <i class="bi bi-trash me-1"></i> Sim, excluir
+                </button>
+                <a class="btn btn-secondary w-50" asp-controller="Venda" asp-action="Index">
+                    <i class="bi bi-arrow-left me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<style>.text-pink { color: #fa6b9a; }</style>

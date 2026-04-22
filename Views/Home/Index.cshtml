@@ -1,5 +1,140 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model PimVendas.Services.DashboardViewModel
+@using PimVendas.Models
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="home-bg"></div>
+<div class="container-fluid">
+
+    <!-- Cabeçalho -->
+    <div class="mb-4">
+        <h1 class="text-white mb-0"><i class="bi bi-speedometer2 text-pink me-2"></i>Dashboard</h1>
+        <small class="text-muted">Visão geral do desempenho da loja</small>
+    </div>
+
+    <!-- Cards de métricas -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-icon">📦</div>
+                <div class="card-value">@Model.TotalVendas</div>
+                <div class="card-label">Total de Vendas</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-icon">📅</div>
+                <div class="card-value">@Model.VendasHoje</div>
+                <div class="card-label">Vendas Hoje</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-icon">💰</div>
+                <div class="card-value" style="font-size: 1.5rem;">
+                    @Model.FaturamentoTotal.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-label">Faturamento Total</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-icon">🔥</div>
+                <div class="card-value" style="font-size: 1.5rem;">
+                    @Model.FaturamentoHoje.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-label">Faturamento Hoje</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Cards de status -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-value text-warning">@Model.VendasPendentes</div>
+                <div class="card-label">Pendentes</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-value text-success">@Model.VendasPagas</div>
+                <div class="card-label">Pagas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-value" style="color:#3b82f6;">@Model.VendasEntregues</div>
+                <div class="card-label">Entregues</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-value text-danger">@Model.VendasCanceladas</div>
+                <div class="card-label">Canceladas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas vendas -->
+    <div class="card-dash">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-white mb-0">Últimas Vendas</h5>
+            <a asp-controller="Venda" asp-action="Index" class="btn btn-sm btn-outline-light">Ver todas</a>
+        </div>
+
+        @if (Model.UltimasVendas.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Valor</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var venda in Model.UltimasVendas)
+                        {
+                            <tr>
+                                <td>@venda.Cliente</td>
+                                <td><small class="text-muted">@venda.CodigoProduto</small> @venda.Produto</td>
+                                <td>@venda.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
+                                <td>@venda.DataVenda.ToString("dd/MM HH:mm")</td>
+                                <td>
+                                    @{
+                                        var (cls, txt) = venda.Status switch
+                                        {
+                                            StatusVenda.Pendente  => ("badge-pendente",  "Pendente"),
+                                            StatusVenda.Pago      => ("badge-pago",      "Pago"),
+                                            StatusVenda.Cancelado => ("badge-cancelado", "Cancelado"),
+                                            StatusVenda.Entregue  => ("badge-entregue",  "Entregue"),
+                                            _                     => ("badge-pendente",  "Pendente")
+                                        };
+                                    }
+                                    <span class="status-badge @cls">@txt</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted text-center py-4">Nenhuma venda registrada ainda.</p>
+        }
+    </div>
+
+</div>
+
+<style>.text-pink { color: #fa6b9a; }</style>

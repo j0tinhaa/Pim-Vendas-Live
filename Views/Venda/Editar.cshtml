@@ -1,0 +1,87 @@
+@model PimVendas.Models.VendaModel
+@using PimVendas.Models
+
+@{
+    ViewData["Title"] = "Editar Venda";
+}
+
+<div class="container" style="max-width: 680px;">
+    <div class="bg-dark p-4 p-md-5 rounded-4">
+
+        <div class="mb-4 text-center">
+            <h1 class="text-white fs-3"><i class="bi bi-pencil-square text-pink me-2"></i>Editar Venda</h1>
+            <p class="text-muted mb-0">Atualize os dados da venda selecionada</p>
+        </div>
+
+        <form method="post" asp-controller="Venda" asp-action="Editar">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Cliente -->
+            <div class="mb-3">
+                <label asp-for="Cliente" class="form-label text-light fw-semibold"></label>
+                <input type="text" class="form-control" asp-for="Cliente" placeholder="Nome da cliente" />
+                <span class="text-danger small" asp-validation-for="Cliente"></span>
+            </div>
+
+            <!-- Código do Produto -->
+            <div class="mb-3">
+                <label asp-for="CodigoProduto" class="form-label text-light fw-semibold"></label>
+                <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto"
+                       placeholder="Ex: BLUSA-001" style="letter-spacing: 0.1em;" />
+                <span class="text-danger small" asp-validation-for="CodigoProduto"></span>
+            </div>
+
+            <!-- Produto -->
+            <div class="mb-3">
+                <label asp-for="Produto" class="form-label text-light fw-semibold"></label>
+                <input type="text" class="form-control" asp-for="Produto" placeholder="Ex: Blusa floral rosa P" />
+                <span class="text-danger small" asp-validation-for="Produto"></span>
+            </div>
+
+            <!-- Valor -->
+            <div class="mb-3">
+                <label asp-for="Valor" class="form-label text-light fw-semibold"></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-secondary text-white border-0">R$</span>
+                    <input type="number" class="form-control" asp-for="Valor"
+                           min="0.01" step="0.01" />
+                </div>
+                <span class="text-danger small" asp-validation-for="Valor"></span>
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label text-light fw-semibold"></label>
+                <select class="form-select" asp-for="Status" asp-items="Html.GetEnumSelectList<PimVendas.Models.StatusVenda>()">
+                </select>
+                <span class="text-danger small" asp-validation-for="Status"></span>
+            </div>
+
+            <!-- Observações -->
+            <div class="mb-4">
+                <label asp-for="Observacoes" class="form-label text-light fw-semibold"></label>
+                <textarea class="form-control" asp-for="Observacoes" rows="2"
+                          placeholder="Endereço de entrega, forma de pagamento, tamanho, etc."></textarea>
+                <span class="text-danger small" asp-validation-for="Observacoes"></span>
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-warning w-50 text-dark fw-semibold">
+                    <i class="bi bi-check-circle me-1"></i> Salvar
+                </button>
+                <a class="btn btn-secondary w-50" asp-controller="Venda" asp-action="Index">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<style>.text-pink { color: #fa6b9a; }</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
