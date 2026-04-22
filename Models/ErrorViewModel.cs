@@ -1,4 +1,4 @@
-namespace PimVendas.Models
+namespace LiveStore.Models
 {
     public class ErrorViewModel
     {

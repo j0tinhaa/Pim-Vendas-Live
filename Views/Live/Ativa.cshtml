@@ -52,7 +52,7 @@
         <table id="tabelaVendas" class="table table-dark table-hover align-middle">
             <thead>
                 <tr>
-                    <th>@ Cliente</th>
+                    <th>Cliente</th>
                     <th>Código</th>
                     <th>Produto</th>
                     <th>Valor</th>
@@ -65,7 +65,7 @@
                 @foreach (var v in vendas)
                 {
                     <tr>
-                        <td><span class="text-pink">@@v.ClienteInstagram</span></td>
+                        <td><span class="text-pink">@v.ClienteInstagramFormatado</span></td>
                         <td><code>@v.CodigoProduto</code></td>
                         <td>@v.NomeProduto</td>
                         <td>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>

@@ -2,6 +2,7 @@ using LiveStore.Models;
 using LiveStore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace LiveStore.Controllers
 {
     public class VendaController : Controller

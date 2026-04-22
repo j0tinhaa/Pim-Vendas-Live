@@ -1,5 +1,6 @@
 using LiveStore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using LiveStore.Models;
 
 namespace LiveStore.Controllers
 {
