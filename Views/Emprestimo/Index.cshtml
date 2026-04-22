@@ -1,0 +1,48 @@
+﻿@model IEnumerable<EmprestimosModel>
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-5">  
+        <h1>Modo Live</h1>
+        <a class="btn btn-success mx-2" asp-area="" asp-controller="Emprestimo" asp-action="Cadastrar"><i class="bi bi-bag-plus mx-2"></i>Nova Venda</a>
+    </div>
+
+    @if (TempData["MensagemSucesso"] != null)
+    {
+        <div class="alert alert-success text-light" role="alert"> @TempData["MensagemSucesso"]</div>
+    }
+
+    <div class="table-responsive">
+        <table id="Emprestimos" class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Recebedor</th>
+                    <th scope="col">Fornecedor</th>
+                    <th scope="col">Livro</th>
+                    <th scope="col">Ultima Atualização</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                @if (Model != null && Model.Any())
+                {
+                    @foreach(var emprestimo in Model)
+                    {
+                        <tr>
+                            <th scope="row">@emprestimo.Recebedor</th>
+                            <td>@emprestimo.Fornecedor</td>
+                            <td>@emprestimo.LivroEmprestado</td>
+                            <td>@emprestimo.dataUltimaAtualizacao</td>
+                            <td class="d-flex flex-wrap gap-2">
+                                <a asp-controller="Emprestimo" asp-action="Editar" asp-route-id="@emprestimo.Id" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square mx-2"></i>Editar</a>
+                                <a asp-controller="Emprestimo" asp-action="Excluir" asp-route-id="@emprestimo.Id" class="btn btn-danger btn-sm"><i class="bi bi-x-square mx-2"></i>Excluir</a>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
