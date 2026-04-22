@@ -8,11 +8,15 @@ namespace LiveStore.Models
     /// </summary>
     public class ClienteModel
     {
+
         [Key]
         [Required(ErrorMessage = "Informe o @ do Instagram!")]
         [StringLength(50, ErrorMessage = "Máximo 50 caracteres.")]
         [Display(Name = "@ Instagram")]
         public string InstagramUser { get; set; } = string.Empty;
+
+        public string ClienteInstagramFormatado =>
+            "@" + InstagramUser.Replace("@", "");
 
         [StringLength(100, ErrorMessage = "Máximo 100 caracteres.")]
         [Display(Name = "Nome")]

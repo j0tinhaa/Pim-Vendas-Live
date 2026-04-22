@@ -4,6 +4,7 @@
     ViewData["Title"] = "Clientes";
 }
 
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="text-white">
@@ -26,8 +27,8 @@
                 @foreach (var c in Model)
                 {
                     <tr>
-                        <td>
-                            <span class="text-pink fw-bold">@c.InstagramUser</span>
+                        <td class="text-pink fw-bold">
+                            @c.ClienteInstagramFormatado
                         </td>
 
                         <td>
