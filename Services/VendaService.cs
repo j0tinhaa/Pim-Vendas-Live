@@ -35,12 +35,17 @@ namespace PimVendas.Services
             var existente = _repository.ObterPorId(venda.Id);
             if (existente == null) return false;
 
-            // Preserva a data original da venda; atualiza apenas a data de atualização
-            venda.DataVenda = existente.DataVenda;
-            venda.DataAtualizacao = DateTime.Now;
+            // Atualiza os campos no objeto já rastreado pelo EF
+            existente.Cliente = venda.Cliente;
+            existente.CodigoProduto = venda.CodigoProduto;
+            existente.Produto = venda.Produto;
+            existente.Valor = venda.Valor;
+            existente.Status = venda.Status;
+            existente.Observacoes = venda.Observacoes;
+            existente.DataAtualizacao = DateTime.Now;
+            // DataVenda preservada automaticamente (não sobrescrevemos)
 
-            _repository.Atualizar(venda);
-            _repository.SalvarAlteracoes();
+            _repository.SalvarAlteracoes(); // sem chamar Atualizar() — o EF já está rastreando
             return true;
         }
 

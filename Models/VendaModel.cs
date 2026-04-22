@@ -1,39 +1,53 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PimVendas.Models
+namespace LiveStore.Models
 {
     public class VendaModel
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Informe o nome da cliente!")]
-        [StringLength(100, ErrorMessage = "Nome não pode ultrapassar 100 caracteres.")]
-        [Display(Name = "Cliente")]
-        public string Cliente { get; set; } = string.Empty;
+        // FK — Live
+        [Required]
+        [Display(Name = "Live")]
+        public int LiveId { get; set; }
+        public LiveModel? Live { get; set; }
 
+        // FK — Cliente (@ Instagram)
+        [Required(ErrorMessage = "Informe o @ da cliente!")]
+        [StringLength(50)]
+        [Display(Name = "@ Instagram")]
+        public string ClienteInstagram { get; set; } = string.Empty;
+        public ClienteModel? Cliente { get; set; }
+
+        // FK — Produto (opcional: pode digitar código manualmente)
+        [Display(Name = "Produto")]
+        public int? ProdutoId { get; set; }
+        public ProdutoModel? Produto { get; set; }
+
+        // Campos desnormalizados para histórico
+        // (preserva dados mesmo se produto for editado depois)
         [Required(ErrorMessage = "Informe o código do produto!")]
-        [StringLength(30, ErrorMessage = "Código não pode ultrapassar 30 caracteres.")]
+        [StringLength(30)]
         [Display(Name = "Código do Produto")]
         public string CodigoProduto { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Informe o nome do produto!")]
-        [StringLength(150, ErrorMessage = "Nome do produto não pode ultrapassar 150 caracteres.")]
+        [StringLength(150)]
         [Display(Name = "Produto")]
-        public string Produto { get; set; } = string.Empty;
+        public string NomeProduto { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Informe o valor da venda!")]
-        [Range(0.01, 99999.99, ErrorMessage = "O valor deve estar entre R$ 0,01 e R$ 99.999,99.")]
+        [Required(ErrorMessage = "Informe o valor!")]
+        [Range(0.01, 99999.99, ErrorMessage = "Valor deve estar entre R$ 0,01 e R$ 99.999,99.")]
         [Column(TypeName = "decimal(10,2)")]
         [Display(Name = "Valor (R$)")]
         public decimal Valor { get; set; }
 
-        [Required(ErrorMessage = "Informe o status da venda!")]
         [Display(Name = "Status")]
-        public StatusVenda Status { get; set; } = StatusVenda.Pendente;
+        public StatusVenda Status { get; set; } = StatusVenda.Reservado;
 
+        [StringLength(500)]
         [Display(Name = "Observações")]
-        [StringLength(500, ErrorMessage = "Observações não podem ultrapassar 500 caracteres.")]
         public string? Observacoes { get; set; }
 
         [Display(Name = "Data da Venda")]
@@ -45,16 +59,16 @@ namespace PimVendas.Models
 
     public enum StatusVenda
     {
-        [Display(Name = "Pendente")]
-        Pendente = 0,
+        [Display(Name = "Reservado")]
+        Reservado = 0,
 
         [Display(Name = "Pago")]
         Pago = 1,
 
-        [Display(Name = "Cancelado")]
-        Cancelado = 2,
-
         [Display(Name = "Entregue")]
-        Entregue = 3
+        Entregue = 2,
+
+        [Display(Name = "Cancelado")]
+        Cancelado = 3
     }
 }

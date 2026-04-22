@@ -1,0 +1,61 @@
+@model LiveStore.Models.ProdutoModel
+@{ ViewData["Title"] = "Editar Produto"; }
+
+<div class="container" style="max-width:600px">
+    <div class="form-card">
+        <div class="text-center mb-4">
+            <h2 class="text-white"><i class="bi bi-pencil-square text-pink"></i> Editar Produto</h2>
+        </div>
+
+        <form method="post" asp-controller="Produto" asp-action="Editar">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Codigo" class="form-label text-light fw-semibold"></label>
+                <input type="text" class="form-control font-monospace text-uppercase" asp-for="Codigo" />
+                <span class="text-danger small" asp-validation-for="Codigo"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label text-light fw-semibold"></label>
+                <input type="text" class="form-control" asp-for="Nome" />
+                <span class="text-danger small" asp-validation-for="Nome"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Preco" class="form-label text-light fw-semibold"></label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-light border-secondary">R$</span>
+                    <input type="number" class="form-control" asp-for="Preco" min="0.01" step="0.01" />
+                </div>
+                <span class="text-danger small" asp-validation-for="Preco"></span>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label asp-for="Tipo" class="form-label text-light fw-semibold"></label>
+                    <input type="text" class="form-control" asp-for="Tipo" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Cor" class="form-label text-light fw-semibold"></label>
+                    <input type="text" class="form-control" asp-for="Cor" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Tamanho" class="form-label text-light fw-semibold"></label>
+                    <input type="text" class="form-control" asp-for="Tamanho" />
+                </div>
+            </div>
+            <div class="mb-4 form-check">
+                <input type="checkbox" class="form-check-input" asp-for="Ativo" id="chkAtivo" />
+                <label class="form-check-label text-light" for="chkAtivo">Produto ativo</label>
+            </div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-warning w-50 fw-semibold text-dark">
+                    <i class="bi bi-check-circle me-1"></i> Salvar
+                </button>
+                <a asp-controller="Produto" asp-action="Index" class="btn btn-secondary w-50">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

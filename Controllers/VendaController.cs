@@ -1,100 +1,135 @@
+using LiveStore.Models;
+using LiveStore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using PimVendas.Models;
-using PimVendas.Services;
 
-namespace PimVendas.Controllers
+namespace LiveStore.Controllers
 {
     public class VendaController : Controller
     {
-        private readonly IVendaService _vendaService;
+        private readonly IVendaService  _vendaService;
+        private readonly ILiveService   _liveService;
+        private readonly IProdutoService _produtoService;
 
-        public VendaController(IVendaService vendaService)
+        public VendaController(IVendaService vendaService,
+                               ILiveService liveService,
+                               IProdutoService produtoService)
         {
-            _vendaService = vendaService;
+            _vendaService   = vendaService;
+            _liveService    = liveService;
+            _produtoService = produtoService;
         }
 
-        // GET: /Venda
-        public IActionResult Index()
-        {
-            var vendas = _vendaService.ObterTodasVendas();
-            return View(vendas);
-        }
-
-        // GET: /Venda/Cadastrar
+        // GET /Venda/Cadastrar?liveId=5
         [HttpGet]
-        public IActionResult Cadastrar()
+        public IActionResult Cadastrar(int liveId)
         {
-            return View(new VendaModel());
+            var live = _liveService.ObterPorId(liveId);
+            if (live == null) return NotFound();
+
+            ViewBag.Live     = live;
+            ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
+            return View(new NovaVendaInput { LiveId = liveId });
         }
 
-        // POST: /Venda/Cadastrar
+        // POST /Venda/Cadastrar
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Cadastrar(VendaModel venda)
+        public IActionResult Cadastrar(NovaVendaInput input)
         {
             if (!ModelState.IsValid)
-                return View(venda);
+            {
+                ViewBag.Live     = _liveService.ObterPorId(input.LiveId);
+                ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
+                return View(input);
+            }
 
-            _vendaService.CadastrarVenda(venda);
-            TempData["MensagemSucesso"] = "Venda cadastrada com sucesso!";
-            return RedirectToAction(nameof(Index));
+            var resultado = _vendaService.RegistrarVenda(input);
+
+            if (resultado.ClienteCriado)
+                TempData["MensagemInfo"] = $"Cliente @{input.ClienteInstagram} cadastrado automaticamente.";
+
+            TempData["MensagemSucesso"] = "Venda registrada com sucesso!";
+            return RedirectToAction("Ativa", "Live");
         }
 
-        // GET: /Venda/Editar/5
+        // GET /Venda/Editar/5
         [HttpGet]
-        public IActionResult Editar(int? id)
+        public IActionResult Editar(int id)
         {
-            if (id == null || id == 0)
-                return NotFound();
+            var venda = _vendaService.ObterPorId(id);
+            if (venda == null) return NotFound();
 
-            var venda = _vendaService.ObterVendaPorId(id.Value);
-            if (venda == null)
-                return NotFound();
+            ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
 
-            return View(venda);
+            var input = new EditarVendaInput
+            {
+                ClienteInstagram = venda.ClienteInstagram,
+                CodigoProduto    = venda.CodigoProduto,
+                NomeProduto      = venda.NomeProduto,
+                Valor            = venda.Valor,
+                Status           = venda.Status,
+                Observacoes      = venda.Observacoes
+            };
+
+            ViewBag.VendaId = id;
+            ViewBag.LiveId  = venda.LiveId;
+            return View(input);
         }
 
-        // POST: /Venda/Editar
+        // POST /Venda/Editar/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Editar(VendaModel venda)
+        public IActionResult Editar(int id, EditarVendaInput input)
         {
             if (!ModelState.IsValid)
-                return View(venda);
+            {
+                ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
+                ViewBag.VendaId  = id;
+                return View(input);
+            }
 
-            var sucesso = _vendaService.EditarVenda(venda);
-            if (!sucesso)
-                return NotFound();
+            var sucesso = _vendaService.EditarVenda(id, input);
+            if (!sucesso) return NotFound();
 
-            TempData["MensagemSucesso"] = "Venda editada com sucesso!";
-            return RedirectToAction(nameof(Index));
+            TempData["MensagemSucesso"] = "Venda atualizada!";
+
+            // Retorna para a tela correta (live ativa ou detalhes)
+            var venda = _vendaService.ObterPorId(id);
+            var live  = venda != null ? _liveService.ObterPorId(venda.LiveId) : null;
+            if (live?.Status == StatusLive.Ativa)
+                return RedirectToAction("Ativa", "Live");
+
+            return RedirectToAction("Detalhes", "Live", new { id = venda?.LiveId });
         }
 
-        // GET: /Venda/Excluir/5
-        [HttpGet]
-        public IActionResult Excluir(int? id)
-        {
-            if (id == null || id == 0)
-                return NotFound();
-
-            var venda = _vendaService.ObterVendaPorId(id.Value);
-            if (venda == null)
-                return NotFound();
-
-            return View(venda);
-        }
-
-        // POST: /Venda/Excluir
-        [HttpPost, ActionName("Excluir")]
+        // POST /Venda/Excluir/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ExcluirConfirmado(int id)
+        public IActionResult Excluir(int id, int liveId)
         {
-            var sucesso = _vendaService.ExcluirVenda(id);
-            if (!sucesso)
-                return NotFound();
+            _vendaService.ExcluirVenda(id);
+            TempData["MensagemSucesso"] = "Venda removida.";
 
-            TempData["MensagemSucesso"] = "Venda excluída com sucesso!";
-            return RedirectToAction(nameof(Index));
+            var live = _liveService.ObterPorId(liveId);
+            if (live?.Status == StatusLive.Ativa)
+                return RedirectToAction("Ativa", "Live");
+
+            return RedirectToAction("Detalhes", "Live", new { id = liveId });
+        }
+
+        // GET /Venda/BuscarProduto?codigo=ROSA-001  (AJAX)
+        [HttpGet]
+        public IActionResult BuscarProduto(string codigo)
+        {
+            var produto = _produtoService.ObterPorCodigo(codigo.ToUpper());
+            if (produto == null) return NotFound();
+
+            return Json(new
+            {
+                id    = produto.Id,
+                nome  = produto.Nome,
+                preco = produto.Preco
+            });
         }
     }
 }

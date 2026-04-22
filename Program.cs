@@ -1,22 +1,32 @@
+using LiveStore.Data;
+using LiveStore.Repositories;
+using LiveStore.Repositories.Interfaces;
+using LiveStore.Services;
+using LiveStore.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using PimVendas.Data;
-using PimVendas.Repositories;
-using PimVendas.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC com localização
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
 
-// Entity Framework — SQL Server
+// EF — SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Injeção de Dependência — Repository e Service
-builder.Services.AddScoped<IVendaRepository, VendaRepository>();
-builder.Services.AddScoped<IVendaService, VendaService>();
+// Repositórios
+builder.Services.AddScoped<ILiveRepository,    LiveRepository>();
+builder.Services.AddScoped<IVendaRepository,   VendaRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+
+// Serviços
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ILiveService,      LiveService>();
+builder.Services.AddScoped<IVendaService,     VendaService>();
+builder.Services.AddScoped<IProdutoService,   ProdutoService>();
+builder.Services.AddScoped<IClienteService,   ClienteService>();
 
 var app = builder.Build();
 

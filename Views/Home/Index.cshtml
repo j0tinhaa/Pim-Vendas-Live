@@ -1,140 +1,133 @@
-@model PimVendas.Services.DashboardViewModel
-@using PimVendas.Models
-
-@{
-    ViewData["Title"] = "Dashboard";
-}
+@model LiveStore.Services.Interfaces.DashboardViewModel
+@using LiveStore.Models
+@{  ViewData["Title"] = "Dashboard"; }
 
 <div class="container-fluid">
-
-    <!-- Cabeçalho -->
-    <div class="mb-4">
-        <h1 class="text-white mb-0"><i class="bi bi-speedometer2 text-pink me-2"></i>Dashboard</h1>
-        <small class="text-muted">Visão geral do desempenho da loja</small>
+    <div class="page-header mb-4">
+        <h1><i class="bi bi-speedometer2 text-pink"></i> Dashboard</h1>
+        <small class="text-muted">Visão geral da loja</small>
     </div>
 
-    <!-- Cards de métricas -->
+    @* Banner de live ativa *@
+    @if (Model.LiveAtiva != null)
+    {
+        <div class="live-banner mb-4">
+            <span class="live-dot"></span>
+            <strong>Live em andamento:</strong> @Model.LiveAtiva.Nome
+            <a asp-controller="Live" asp-action="Ativa" class="btn btn-sm btn-light ms-3">
+                <i class="bi bi-arrow-right"></i> Ir para a live
+            </a>
+        </div>
+    }
+
+    @* Cards principais *@
     <div class="row g-3 mb-4">
-
         <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-icon">📦</div>
-                <div class="card-value">@Model.TotalVendas</div>
-                <div class="card-label">Total de Vendas</div>
+            <div class="card-dash">
+                <div class="card-dash-icon">📦</div>
+                <div class="card-dash-value">@Model.TotalVendas</div>
+                <div class="card-dash-label">Total de Vendas</div>
             </div>
         </div>
-
         <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-icon">📅</div>
-                <div class="card-value">@Model.VendasHoje</div>
-                <div class="card-label">Vendas Hoje</div>
+            <div class="card-dash">
+                <div class="card-dash-icon">📅</div>
+                <div class="card-dash-value">@Model.VendasHoje</div>
+                <div class="card-dash-label">Vendas Hoje</div>
             </div>
         </div>
-
         <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-icon">💰</div>
-                <div class="card-value" style="font-size: 1.5rem;">
+            <div class="card-dash">
+                <div class="card-dash-icon">💰</div>
+                <div class="card-dash-value faturamento">
                     @Model.FaturamentoTotal.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
                 </div>
-                <div class="card-label">Faturamento Total</div>
+                <div class="card-dash-label">Faturamento Total</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash">
+                <div class="card-dash-icon">👥</div>
+                <div class="card-dash-value">@Model.TotalClientes</div>
+                <div class="card-dash-label">Clientes</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        @* Live com maior faturamento *@
+        <div class="col-md-5">
+            <div class="card-dash h-100">
+                <h6 class="text-muted mb-3"><i class="bi bi-trophy-fill text-warning me-1"></i>Live com Maior Faturamento</h6>
+                @if (Model.LiveMaiorFaturamento != null)
+                {
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-white fs-5">@Model.LiveMaiorFaturamento.Nome</div>
+                            <small class="text-muted">@Model.LiveMaiorFaturamento.IniciadaEm.ToString("dd/MM/yyyy")</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-success fw-bold fs-5">
+                                @Model.LiveMaiorFaturamento.FaturamentoTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                            </div>
+                            <small class="text-muted">@Model.LiveMaiorFaturamento.TotalVendas vendas</small>
+                        </div>
+                    </div>
+                    <a asp-controller="Live" asp-action="Detalhes" asp-route-id="@Model.LiveMaiorFaturamento.Id"
+                       class="btn btn-outline-light btn-sm mt-3">Ver detalhes</a>
+                }
+                else
+                {
+                    <p class="text-muted">Nenhuma live realizada ainda.</p>
+                }
             </div>
         </div>
 
-        <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-icon">🔥</div>
-                <div class="card-value" style="font-size: 1.5rem;">
-                    @Model.FaturamentoHoje.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
+        @* Últimas vendas *@
+        <div class="col-md-7">
+            <div class="card-dash h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-muted mb-0"><i class="bi bi-clock-history me-1"></i>Últimas Vendas</h6>
+                    <a asp-controller="Live" asp-action="Ativa" class="btn btn-sm btn-outline-light">Ver live</a>
                 </div>
-                <div class="card-label">Faturamento Hoje</div>
-            </div>
-        </div>
 
-    </div>
-
-    <!-- Cards de status -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-value text-warning">@Model.VendasPendentes</div>
-                <div class="card-label">Pendentes</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-value text-success">@Model.VendasPagas</div>
-                <div class="card-label">Pagas</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-value" style="color:#3b82f6;">@Model.VendasEntregues</div>
-                <div class="card-label">Entregues</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card-dash text-center">
-                <div class="card-value text-danger">@Model.VendasCanceladas</div>
-                <div class="card-label">Canceladas</div>
+                @if (Model.UltimasVendas.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-dark table-sm align-middle mb-0">
+                            <thead><tr>
+                                <th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th>
+                            </tr></thead>
+                            <tbody>
+                                @foreach (var v in Model.UltimasVendas)
+                                {
+                                    <tr>
+                                        <td><small class="text-pink">@@v.ClienteInstagram</small></td>
+                                        <td><small>@v.CodigoProduto — @v.NomeProduto</small></td>
+                                        <td><small>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</small></td>
+                                        <td>@Html.Raw(BadgeStatus(v.Status))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Nenhuma venda registrada ainda.</p>
+                }
             </div>
         </div>
     </div>
-
-    <!-- Últimas vendas -->
-    <div class="card-dash">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="text-white mb-0">Últimas Vendas</h5>
-            <a asp-controller="Venda" asp-action="Index" class="btn btn-sm btn-outline-light">Ver todas</a>
-        </div>
-
-        @if (Model.UltimasVendas.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Produto</th>
-                            <th>Valor</th>
-                            <th>Data</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var venda in Model.UltimasVendas)
-                        {
-                            <tr>
-                                <td>@venda.Cliente</td>
-                                <td><small class="text-muted">@venda.CodigoProduto</small> @venda.Produto</td>
-                                <td>@venda.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
-                                <td>@venda.DataVenda.ToString("dd/MM HH:mm")</td>
-                                <td>
-                                    @{
-                                        var (cls, txt) = venda.Status switch
-                                        {
-                                            StatusVenda.Pendente  => ("badge-pendente",  "Pendente"),
-                                            StatusVenda.Pago      => ("badge-pago",      "Pago"),
-                                            StatusVenda.Cancelado => ("badge-cancelado", "Cancelado"),
-                                            StatusVenda.Entregue  => ("badge-entregue",  "Entregue"),
-                                            _                     => ("badge-pendente",  "Pendente")
-                                        };
-                                    }
-                                    <span class="status-badge @cls">@txt</span>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted text-center py-4">Nenhuma venda registrada ainda.</p>
-        }
-    </div>
-
 </div>
 
-<style>.text-pink { color: #fa6b9a; }</style>
+@functions {
+    string BadgeStatus(StatusVenda s) => s switch
+    {
+        StatusVenda.Reservado => "<span class='status-badge badge-reservado'>Reservado</span>",
+        StatusVenda.Pago      => "<span class='status-badge badge-pago'>Pago</span>",
+        StatusVenda.Entregue  => "<span class='status-badge badge-entregue'>Entregue</span>",
+        StatusVenda.Cancelado => "<span class='status-badge badge-cancelado'>Cancelado</span>",
+        _                     => ""
+    };
+}

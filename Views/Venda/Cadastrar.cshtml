@@ -1,87 +1,125 @@
-@model PimVendas.Models.VendaModel
-@using PimVendas.Models
-
+@* ============================================================
+   Views/Venda/Cadastrar.cshtml
+   ============================================================ *@
+@model LiveStore.Services.Interfaces.NovaVendaInput
+@using LiveStore.Models
 @{
     ViewData["Title"] = "Nova Venda";
+    var live = (LiveModel)ViewBag.Live;
 }
 
-<div class="container" style="max-width: 680px;">
-    <div class="bg-dark p-4 p-md-5 rounded-4">
-
-        <div class="mb-4 text-center">
-            <h1 class="text-white fs-3"><i class="bi bi-bag-plus text-pink me-2"></i>Nova Venda</h1>
-            <p class="text-muted mb-0">Registre uma venda realizada durante a live</p>
+<div class="container" style="max-width:640px">
+    <div class="form-card">
+        <div class="mb-3">
+            <a asp-controller="Live" asp-action="Ativa" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar para live
+            </a>
+        </div>
+        <div class="text-center mb-4">
+            <h2 class="text-white">Nova Venda</h2>
+            <small class="text-muted">Live: <strong class="text-pink">@live.Nome</strong></small>
         </div>
 
-        <form method="post" asp-controller="Venda" asp-action="Cadastrar">
+        <form method="post" asp-controller="Venda" asp-action="Cadastrar" id="formVenda">
             @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="LiveId" />
 
-            <!-- Cliente -->
+            @* @ Instagram *@
             <div class="mb-3">
-                <label asp-for="Cliente" class="form-label text-light fw-semibold"></label>
-                <input type="text" class="form-control" asp-for="Cliente" placeholder="Nome da cliente" autocomplete="off" />
-                <span class="text-danger small" asp-validation-for="Cliente"></span>
-            </div>
-
-            <!-- Código do Produto -->
-            <div class="mb-3">
-                <label asp-for="CodigoProduto" class="form-label text-light fw-semibold"></label>
-                <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto"
-                       placeholder="Ex: BLUSA-001" autocomplete="off" style="letter-spacing: 0.1em;" />
-                <span class="text-danger small" asp-validation-for="CodigoProduto"></span>
-                <div class="form-text text-muted">Código único anunciado durante a live</div>
-            </div>
-
-            <!-- Produto -->
-            <div class="mb-3">
-                <label asp-for="Produto" class="form-label text-light fw-semibold"></label>
-                <input type="text" class="form-control" asp-for="Produto" placeholder="Ex: Blusa floral rosa P" />
-                <span class="text-danger small" asp-validation-for="Produto"></span>
-            </div>
-
-            <!-- Valor -->
-            <div class="mb-3">
-                <label asp-for="Valor" class="form-label text-light fw-semibold"></label>
+                <label class="form-label text-light fw-semibold">@ Instagram da Cliente</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-secondary text-white border-0">R$</span>
+                    <span class="input-group-text bg-dark text-pink border-secondary">@</span>
+                    <input type="text" class="form-control" asp-for="ClienteInstagram"
+                           placeholder="nome_da_cliente" autocomplete="off" />
+                </div>
+                <span class="text-danger small" asp-validation-for="ClienteInstagram"></span>
+                <div class="form-text text-muted">Se a cliente não existir, será cadastrada automaticamente.</div>
+            </div>
+
+            @* Código do produto *@
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Código do Produto</label>
+                <div class="input-group">
+                    <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto"
+                           placeholder="Ex: ROSA-001" id="inputCodigo" autocomplete="off" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="buscarProduto()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <span class="text-danger small" asp-validation-for="CodigoProduto"></span>
+                <div id="produtoFeedback" class="form-text"></div>
+            </div>
+
+            @* Nome do produto *@
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Nome do Produto</label>
+                <input type="text" class="form-control" asp-for="NomeProduto"
+                       placeholder="Ex: Blusa floral rosa P" id="inputNome" />
+                <span class="text-danger small" asp-validation-for="NomeProduto"></span>
+            </div>
+
+            @* Valor *@
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Valor (R$)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-light border-secondary">R$</span>
                     <input type="number" class="form-control" asp-for="Valor"
-                           placeholder="0,00" min="0.01" step="0.01" />
+                           min="0.01" step="0.01" placeholder="0,00" id="inputValor" />
                 </div>
                 <span class="text-danger small" asp-validation-for="Valor"></span>
             </div>
 
-            <!-- Status -->
+            @* Status *@
             <div class="mb-3">
-                <label asp-for="Status" class="form-label text-light fw-semibold"></label>
-                <select class="form-select" asp-for="Status" asp-items="Html.GetEnumSelectList<PimVendas.Models.StatusVenda>()">
-                </select>
-                <span class="text-danger small" asp-validation-for="Status"></span>
+                <label class="form-label text-light fw-semibold">Status</label>
+                <select class="form-select" asp-for="Status"
+                        asp-items="Html.GetEnumSelectList<LiveStore.Models.StatusVenda>()"></select>
             </div>
 
-            <!-- Observações -->
+            @* Observações *@
             <div class="mb-4">
-                <label asp-for="Observacoes" class="form-label text-light fw-semibold"></label>
+                <label class="form-label text-light fw-semibold">Observações <small class="text-muted">(opcional)</small></label>
                 <textarea class="form-control" asp-for="Observacoes" rows="2"
-                          placeholder="Endereço de entrega, forma de pagamento, tamanho, etc."></textarea>
-                <span class="text-danger small" asp-validation-for="Observacoes"></span>
+                          placeholder="Endereço, forma de pagamento, tamanho..."></textarea>
             </div>
 
-            <!-- Botões -->
             <div class="d-flex gap-3">
-                <button type="submit" class="btn btn-success w-50">
-                    <i class="bi bi-check-circle me-1"></i> Adicionar
+                <button type="submit" class="btn btn-pink w-50">
+                    <i class="bi bi-check-circle me-1"></i> Registrar Venda
                 </button>
-                <a class="btn btn-secondary w-50" asp-controller="Venda" asp-action="Index">
-                    <i class="bi bi-arrow-left me-1"></i> Voltar
-                </a>
+                <a asp-controller="Live" asp-action="Ativa" class="btn btn-secondary w-50">Cancelar</a>
             </div>
         </form>
-
     </div>
 </div>
 
-<style>.text-pink { color: #fa6b9a; }</style>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function buscarProduto() {
+            const codigo = document.getElementById('inputCodigo').value.trim();
+            if (!codigo) return;
+
+            fetch(`/Venda/BuscarProduto?codigo=${encodeURIComponent(codigo)}`)
+                .then(r => {
+                    if (!r.ok) throw new Error('Produto não encontrado');
+                    return r.json();
+                })
+                .then(p => {
+                    document.getElementById('inputNome').value  = p.nome;
+                    document.getElementById('inputValor').value = p.preco;
+                    document.getElementById('produtoFeedback').innerHTML =
+                        `<span class="text-success"><i class="bi bi-check-circle"></i> Produto encontrado: <strong>${p.nome}</strong></span>`;
+                })
+                .catch(() => {
+                    document.getElementById('produtoFeedback').innerHTML =
+                        `<span class="text-warning"><i class="bi bi-exclamation-circle"></i> Código não encontrado no cadastro. Preencha manualmente.</span>`;
+                });
+        }
+
+        // Busca ao pressionar Enter no campo de código
+        document.getElementById('inputCodigo').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); buscarProduto(); }
+        });
+    </script>
 }
