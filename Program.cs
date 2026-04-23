@@ -7,21 +7,32 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization();
+// MVC
+builder.Services.AddControllersWithViews();
 
 // EF — SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repositórios
+// ── Cookie Authentication (sem Identity) ─────────────────────────────────────
+builder.Services.AddAuthentication("LiveStoreCookie")
+    .AddCookie("LiveStoreCookie", options =>
+    {
+        options.LoginPath         = "/Login";
+        options.LogoutPath        = "/Login/Logout";
+        options.AccessDeniedPath  = "/Login";
+        options.ExpireTimeSpan    = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.Name       = "LiveStore.Auth";
+    });
+
+// ── Repositórios ─────────────────────────────────────────────────────────────
 builder.Services.AddScoped<ILiveRepository,    LiveRepository>();
 builder.Services.AddScoped<IVendaRepository,   VendaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 
-// Serviços
+// ── Serviços ──────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ILiveService,      LiveService>();
 builder.Services.AddScoped<IVendaService,     VendaService>();
@@ -39,6 +50,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+// ORDEM OBRIGATÓRIA: Authentication ANTES de Authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

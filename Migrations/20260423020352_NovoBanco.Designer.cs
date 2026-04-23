@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PimVendas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260422210348_NovoBanco")]
+    [Migration("20260423020352_NovoBanco")]
     partial class NovoBanco
     {
         /// <inheritdoc />

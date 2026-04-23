@@ -1,9 +1,10 @@
 using LiveStore.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using LiveStore.Models;
 
 namespace LiveStore.Controllers
 {
+    [Authorize]
     public class LiveController : Controller
     {
         private readonly ILiveService  _liveService;

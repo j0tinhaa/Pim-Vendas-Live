@@ -16,6 +16,7 @@ namespace LiveStore.Repositories.Interfaces
         IEnumerable<VendaModel> ObterPorLive(int liveId);
         VendaModel? ObterPorId(int id);
         void Adicionar(VendaModel venda);
+        void Remover(VendaModel venda);
         void SalvarAlteracoes();
     }
 

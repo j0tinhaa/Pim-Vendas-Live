@@ -1,10 +1,11 @@
 using LiveStore.Models;
 using LiveStore.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace LiveStore.Controllers
 {
+    [Authorize]
     public class VendaController : Controller
     {
         private readonly IVendaService  _vendaService;

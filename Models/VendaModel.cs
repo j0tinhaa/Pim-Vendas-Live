@@ -16,13 +16,10 @@ namespace LiveStore.Models
         // FK — Cliente (@ Instagram)
         [Required(ErrorMessage = "Informe o @ da cliente!")]
         [StringLength(50)]
-        [Display(Name = "@Instagram")]
+        [Display(Name = "@ Instagram")]
         public string ClienteInstagram { get; set; } = string.Empty;
-
-        [ForeignKey("ClienteInstagram")]
         public ClienteModel? Cliente { get; set; }
 
-        // FORMATA DEIXANDO SEMPRE COM @ NA FRENTE
         public string ClienteInstagramFormatado =>
             "@" + ClienteInstagram.Replace("@", "");
 
@@ -75,7 +72,6 @@ namespace LiveStore.Models
         Entregue = 2,
 
         [Display(Name = "Cancelado")]
-        Cancelado = 3,
-        Pendente = 4
+        Cancelado = 3
     }
 }

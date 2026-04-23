@@ -1,0 +1,206 @@
+@{
+    ViewData["Title"] = "Login";
+    Layout = null; // Sem sidebar na tela de login
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — LiveStore</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --pink:     #fa6b9a;
+            --pink-dark:#e0558a;
+            --bg:       #0c0a21;
+            --bg-card:  #13112e;
+            --border:   rgba(250,107,154,0.2);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+            margin: 0; padding: 0; height: 100%;
+            background: var(--bg);
+            font-family: system-ui, sans-serif;
+            color: #e0e0f0;
+        }
+
+        .login-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            /* Gradiente sutil de fundo */
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(250,107,154,.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(250,107,154,.05) 0%, transparent 50%),
+                var(--bg);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 36px;
+            box-shadow: 0 0 60px rgba(250,107,154,.08);
+            animation: fadeUp .4s ease;
+        }
+
+        @@keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .login-logo .brand {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+        .login-logo .brand .pim { color: var(--pink); }
+        .login-logo small {
+            display: block;
+            color: #7777aa;
+            font-size: .82rem;
+            margin-top: 4px;
+        }
+
+        .form-label {
+            color: #bbbbd8;
+            font-size: .85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            background: #1a1835 !important;
+            border: 1px solid #2d2b55 !important;
+            color: #e0e0f0 !important;
+            border-radius: 10px;
+            padding: 11px 14px;
+            transition: border-color .2s;
+        }
+        .form-control:focus {
+            border-color: var(--pink) !important;
+            box-shadow: 0 0 0 3px rgba(250,107,154,.15) !important;
+            outline: none;
+        }
+        .form-control::placeholder { color: #555577; }
+
+        .input-icon-wrap {
+            position: relative;
+        }
+        .input-icon-wrap .bi {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555577;
+            pointer-events: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: var(--pink);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s, transform .15s;
+            margin-top: 8px;
+        }
+        .btn-login:hover {
+            background: var(--pink-dark);
+            transform: translateY(-1px);
+        }
+        .btn-login:active { transform: translateY(0); }
+
+        .erro-box {
+            background: rgba(239,68,68,.12);
+            border: 1px solid rgba(239,68,68,.3);
+            color: #fca5a5;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: .87rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #555577;
+            font-size: .75rem;
+        }
+    </style>
+</head>
+<body>
+<div class="login-wrap">
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="login-logo">
+            <div class="brand"><span class="pim">Live</span>Store</div>
+            <small>Sistema de vendas por live</small>
+        </div>
+
+        <!-- Erro -->
+        @if (ViewBag.Erro != null)
+        {
+            <div class="erro-box">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                @ViewBag.Erro
+            </div>
+        }
+
+        <!-- Formulário -->
+        <form method="post" asp-controller="Login" asp-action="Index">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+            <div class="mb-3">
+                <label class="form-label">Usuário</label>
+                <div class="input-icon-wrap">
+                    <input type="text" name="usuario" class="form-control"
+                           placeholder="admin" autocomplete="username"
+                           autofocus required />
+                    <i class="bi bi-person"></i>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Senha</label>
+                <div class="input-icon-wrap">
+                    <input type="password" name="senha" class="form-control"
+                           placeholder="••••••" autocomplete="current-password" required />
+                    <i class="bi bi-lock"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+            </button>
+        </form>
+
+        <div class="login-footer">
+            LiveStore &copy; @DateTime.Now.Year
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -8,7 +8,6 @@ namespace LiveStore.Models
     /// </summary>
     public class ClienteModel
     {
-
         [Key]
         [Required(ErrorMessage = "Informe o @ do Instagram!")]
         [StringLength(50, ErrorMessage = "Máximo 50 caracteres.")]

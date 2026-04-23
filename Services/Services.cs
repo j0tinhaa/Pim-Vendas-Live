@@ -128,26 +128,41 @@ namespace LiveStore.Services
                 clienteCriado = true;
             }
 
-            // Tenta vincular produto pelo código (opcional)
-            int? produtoId = null;
+            // Busca ou cria produto automaticamente pelo código
+            var codigoProduto = input.CodigoProduto.Trim().ToUpper();
             string nomeProduto = input.NomeProduto.Trim();
             decimal valor      = input.Valor;
 
-            var produto = _produtoRepo.ObterPorCodigo(input.CodigoProduto.Trim().ToUpper());
-            if (produto != null)
+            var produto = _produtoRepo.ObterPorCodigo(codigoProduto);
+            if (produto == null)
             {
-                produtoId   = produto.Id;
-                // Se nome/valor não foram informados, usa dados do produto cadastrado
+                // Cadastro automático: cria com os dados informados na venda
+                produto = new ProdutoModel
+                {
+                    Codigo   = codigoProduto,
+                    Nome     = string.IsNullOrWhiteSpace(nomeProduto) ? codigoProduto : nomeProduto,
+                    Preco    = valor,
+                    Ativo    = true,
+                    CriadoEm = DateTime.Now
+                };
+                _produtoRepo.Adicionar(produto);
+                _produtoRepo.SalvarAlteracoes();
+            }
+            else
+            {
+                // Produto encontrado: preenche nome/valor se não informados
                 if (string.IsNullOrWhiteSpace(nomeProduto)) nomeProduto = produto.Nome;
                 if (valor <= 0) valor = produto.Preco;
             }
+
+            int? produtoId = produto.Id;
 
             var venda = new VendaModel
             {
                 LiveId           = input.LiveId,
                 ClienteInstagram = instagram,
                 ProdutoId        = produtoId,
-                CodigoProduto    = input.CodigoProduto.Trim().ToUpper(),
+                CodigoProduto    = codigoProduto,
                 NomeProduto      = nomeProduto,
                 Valor            = valor,
                 Status           = input.Status,
@@ -201,7 +216,7 @@ namespace LiveStore.Services
             var venda = _vendaRepo.ObterPorId(id);
             if (venda == null) return false;
 
-            // Exclusão direta via contexto rastreado
+            _vendaRepo.Remover(venda);
             _vendaRepo.SalvarAlteracoes();
             return true;
         }

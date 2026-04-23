@@ -47,6 +47,8 @@ namespace LiveStore.Repositories
 
         public void Adicionar(VendaModel venda) => _db.Vendas.Add(venda);
 
+        public void Remover(VendaModel venda) => _db.Vendas.Remove(venda);
+
         public void SalvarAlteracoes() => _db.SaveChanges();
     }
 

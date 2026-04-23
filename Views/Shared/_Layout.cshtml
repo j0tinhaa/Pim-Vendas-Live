@@ -73,6 +73,23 @@
                 </a>
             </li>
         </ul>
+
+        <!-- Rodapé: usuário + logout -->
+        <div style="position:absolute;bottom:16px;left:14px;right:14px;">
+            <hr class="sidebar-hr"/>
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <i class="bi bi-person-circle" style="color:var(--pink)"></i>
+                    <small class="text-light ms-1">@User.Identity?.Name</small>
+                </div>
+                <form asp-controller="Login" asp-action="Logout" method="post" style="margin:0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Sair">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
     </nav>
 
     <!-- CONTEÚDO -->

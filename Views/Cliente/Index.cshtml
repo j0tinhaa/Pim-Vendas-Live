@@ -1,15 +1,9 @@
 @model IEnumerable<LiveStore.Models.ClienteModel>
-
-@{
-    ViewData["Title"] = "Clientes";
-}
-
+@{ ViewData["Title"] = "Clientes"; }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="text-white">
-            <i class="bi bi-people text-pink"></i> Clientes
-        </h1>
+        <h1 class="text-white"><i class="bi bi-people text-pink"></i> Clientes</h1>
     </div>
 
     <div class="table-responsive">
@@ -27,33 +21,26 @@
                 @foreach (var c in Model)
                 {
                     <tr>
-                        <td class="text-pink fw-bold">
-                            @c.ClienteInstagramFormatado
+                        <td>
+                            <span class="text-pink fw-bold">
+                                @( !string.IsNullOrWhiteSpace(c.Nome) ? c.Nome : c.ClienteInstagramFormatado )
+                            </span>
                         </td>
 
                         <td>
-                            @if (string.IsNullOrEmpty(c.Nome))
-                            {
-                                <em class="text-muted">não informado</em>
-                            }
-                            else
+                            @if (!string.IsNullOrWhiteSpace(c.Nome))
                             {
                                 @c.Nome
                             }
+                            else
+                            {
+                                <em class="text-muted">não informado</em>
+                            }
                         </td>
-
-                        <td>
-                            @(string.IsNullOrEmpty(c.Telefone) ? "—" : c.Telefone)
-                        </td>
-
-                        <td>
-                            @c.CriadoEm.ToString("dd/MM/yyyy")
-                        </td>
-
+                        <td>@(c.Telefone ?? "—")</td>
+                        <td>@c.CriadoEm.ToString("dd/MM/yyyy")</td>
                         <td class="text-center">
-                            <a asp-controller="Cliente"
-                               asp-action="Editar"
-                               asp-route-id="@c.InstagramUser"
+                            <a asp-controller="Cliente" asp-action="Editar" asp-route-id="@c.InstagramUser"
                                class="btn btn-warning btn-sm">
                                 <i class="bi bi-pencil"></i>
                             </a>
