@@ -35,21 +35,16 @@
                    class="btn btn-pink align-self-center">
                     <i class="bi bi-plus-circle me-1"></i> Nova Venda
                 </a>
-                <form asp-controller="Live" asp-action="Encerrar" method="post" class="align-self-center"
-                      onsubmit="return confirm('Encerrar a live agora?')">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@liveId" />
-                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-stop-circle"></i> Encerrar
-                    </button>
-                </form>
+                <button type="button" class="btn btn-outline-danger btn-sm align-self-center" data-bs-toggle="modal" data-bs-target="#encerrarLiveModal">
+                    <i class="bi bi-stop-circle"></i> Encerrar
+                </button>
             </div>
         </div>
     </div>
 
     @* Tabela de vendas *@
     <div class="table-responsive">
-        <table id="tabelaVendas" class="table table-dark table-hover align-middle">
+        <table id="tabelaVendas" class="table-livestore">
             <thead>
                 <tr>
                     <th>Cliente</th>
@@ -77,15 +72,10 @@
                                    class="btn btn-warning btn-sm" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <form asp-controller="Venda" asp-action="Excluir" method="post"
-                                      onsubmit="return confirm('Remover esta venda?')">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@v.Id" />
-                                    <input type="hidden" name="liveId" value="@liveId" />
-                                    <button class="btn btn-danger btn-sm" title="Excluir">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-sm" title="Excluir"
+                                        onclick="confirmarExclusao('/Venda/Excluir', 'Tem certeza que deseja excluir esta venda do produto @v.NomeProduto?', { id: @v.Id, liveId: @liveId })">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -113,3 +103,31 @@
         _                     => ""
     };
 }
+
+@* Modal de Encerrar Live *@
+<div class="modal fade" id="encerrarLiveModal" tabindex="-1" aria-labelledby="encerrarLiveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#1a1730; border: 1px solid var(--pink);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white" id="encerrarLiveModalLabel">
+                    <i class="bi bi-exclamation-triangle text-warning me-2"></i> Encerrar Live
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-light">
+                <p>Tem certeza que deseja encerrar a live <strong>@live.Nome</strong>?</p>
+                <p class="small text-muted mb-0">Essa ação impedirá o registro de novas vendas e permitirá o envio dos relatórios finais.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-controller="Live" asp-action="Encerrar" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@liveId" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-stop-circle me-1"></i> Sim, Encerrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
