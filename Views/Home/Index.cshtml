@@ -1,10 +1,12 @@
 @model LiveStore.Services.Interfaces.DashboardViewModel
 @using LiveStore.Models
-@{  ViewData["Title"] = "Dashboard"; }
+@{
+    ViewData["Title"] = "Dashboard";
+}
 
 <div class="container-fluid">
     <div class="page-header mb-4">
-        <h1><i class="bi bi-speedometer2 text-pink"></i> Dashboard</h1>
+        <h1><i class="bi bi-graph-up-arrow text-pink"></i> Dashboard</h1>
         <small class="text-muted">Visão geral da loja</small>
     </div>
 
@@ -24,21 +26,21 @@
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="card-dash">
-                <div class="card-dash-icon">📦</div>
+                <div class="card-dash-icon"><i class="bi bi-box-seam text-pink"></i></div>
                 <div class="card-dash-value">@Model.TotalVendas</div>
                 <div class="card-dash-label">Total de Vendas</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
             <div class="card-dash">
-                <div class="card-dash-icon">📅</div>
+                <div class="card-dash-icon"><i class="bi bi-calendar-date text-pink"></i></div>
                 <div class="card-dash-value">@Model.VendasHoje</div>
                 <div class="card-dash-label">Vendas Hoje</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
             <div class="card-dash">
-                <div class="card-dash-icon">💰</div>
+                <div class="card-dash-icon"><i class="bi bi-currency-dollar text-pink"></i></div>
                 <div class="card-dash-value faturamento">
                     @Model.FaturamentoTotal.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
                 </div>
@@ -47,7 +49,7 @@
         </div>
         <div class="col-6 col-md-3">
             <div class="card-dash">
-                <div class="card-dash-icon">👥</div>
+                <div class="card-dash-icon"><i class="bi bi-people text-pink"></i></div>
                 <div class="card-dash-value">@Model.TotalClientes</div>
                 <div class="card-dash-label">Clientes</div>
             </div>
@@ -58,7 +60,7 @@
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="card-dash" style="border-color: #6366f1;">
-                <div class="card-dash-icon">📈</div>
+                <div class="card-dash-icon"><i class="bi bi-sort-up text-pink"></i></div>
                 <div class="card-dash-value text-info">
                     @Model.TicketMedio.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
                 </div>
@@ -67,7 +69,7 @@
         </div>
         <div class="col-6 col-md-3">
             <div class="card-dash" style="border-color: #ef4444;">
-                <div class="card-dash-icon">📉</div>
+                <div class="card-dash-icon"><i class="bi bi-sort-down text-pink"></i></div>
                 <div class="card-dash-value text-danger">
                     @Model.TotalGastosMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
                 </div>
@@ -76,7 +78,7 @@
         </div>
         <div class="col-6 col-md-3">
             <div class="card-dash" style="border-color: #10b981;">
-                <div class="card-dash-icon">💸</div>
+                <div class="card-dash-icon"><i class="bi bi-cash-stack text-pink"></i></div>
                 <div class="card-dash-value text-success">
                     @Model.LucroLiquidoMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
                 </div>
@@ -84,8 +86,9 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card-dash" style="border-color: #f59e0b;" title="Horário com maior número de vendas na história.">
-                <div class="card-dash-icon">⏰</div>
+            <div class="card-dash" style="border-color: #f59e0b;"
+                title="Horário com maior número de vendas na história.">
+                <div class="card-dash-icon"><i class="bi bi-clock text-pink"></i></div>
                 <div class="card-dash-value text-warning">
                     @(Model.MelhorHorarioLive.HasValue ? Model.MelhorHorarioLive.Value.ToString(@"hh\:mm") : "--:--")
                 </div>
@@ -98,7 +101,7 @@
         @* Live com maior faturamento *@
         <div class="col-md-5">
             <div class="card-dash h-100">
-                <h6 class="text-muted mb-3"><i class="bi bi-trophy-fill text-warning me-1"></i>Live com Maior Faturamento</h6>
+                <h6 class="text-muted mb-3"><i class="bi bi-trophy text-pink me-1"></i>Live com Maior Faturamento</h6>
                 @if (Model.LiveMaiorFaturamento != null)
                 {
                     <div class="d-flex justify-content-between align-items-center">
@@ -108,13 +111,14 @@
                         </div>
                         <div class="text-end">
                             <div class="text-success fw-bold fs-5">
-                                @Model.LiveMaiorFaturamento.FaturamentoTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                                @Model.LiveMaiorFaturamento.FaturamentoTotal.ToString("C2", new
+                            System.Globalization.CultureInfo("pt-BR"))
                             </div>
                             <small class="text-muted">@Model.LiveMaiorFaturamento.TotalVendas vendas</small>
                         </div>
                     </div>
                     <a asp-controller="Live" asp-action="Detalhes" asp-route-id="@Model.LiveMaiorFaturamento.Id"
-                       class="btn btn-outline-light btn-sm mt-3">Ver detalhes</a>
+                        class="btn btn-outline-light btn-sm mt-3">Ver detalhes</a>
                 }
                 else
                 {
@@ -135,16 +139,23 @@
                 {
                     <div class="table-responsive">
                         <table class="table-livestore mb-0">
-                            <thead><tr>
-                                <th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th>
-                            </tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Produto</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 @foreach (var v in Model.UltimasVendas)
                                 {
                                     <tr>
-                                        <td><small class="text-pink">@(v.Cliente?.Nome ?? v.ClienteInstagramFormatado)</small></td>
+                                        <td><small class="text-pink">@(v.Cliente?.Nome ?? v.ClienteInstagramFormatado)</small>
+                                        </td>
                                         <td><small>@v.CodigoProduto — @v.NomeProduto</small></td>
-                                        <td><small>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</small></td>
+                                        <td><small>@v.Valor.ToString("C2", new
+                                        System.Globalization.CultureInfo("pt-BR"))</small></td>
                                         <td>@Html.Raw(BadgeStatus(v.Status))</td>
                                     </tr>
                                 }
@@ -165,9 +176,9 @@
     string BadgeStatus(StatusVenda s) => s switch
     {
         StatusVenda.Reservado => "<span class='status-badge badge-reservado'>Reservado</span>",
-        StatusVenda.Pago      => "<span class='status-badge badge-pago'>Pago</span>",
-        StatusVenda.Entregue  => "<span class='status-badge badge-entregue'>Entregue</span>",
+        StatusVenda.Pago => "<span class='status-badge badge-pago'>Pago</span>",
+        StatusVenda.Entregue => "<span class='status-badge badge-entregue'>Entregue</span>",
         StatusVenda.Cancelado => "<span class='status-badge badge-cancelado'>Cancelado</span>",
-        _                     => ""
+        _ => ""
     };
 }

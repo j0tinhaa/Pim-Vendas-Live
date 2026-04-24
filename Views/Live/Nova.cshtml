@@ -1,12 +1,14 @@
 @* ============================================================
-   Views/Live/Nova.cshtml
-   ============================================================ *@
-@{  ViewData["Title"] = "Nova Live"; }
+Views/Live/Nova.cshtml
+============================================================ *@
+@{
+    ViewData["Title"] = "Nova Live";
+}
 
 <div class="container" style="max-width:560px">
     <div class="form-card">
         <div class="text-center mb-4">
-            <div style="font-size:3rem">🎬</div>
+            <div style="font-size:3rem"><i class="bi bi-film text-pink"></i></div>
             <h2 class="text-white">Iniciar Nova Live</h2>
             <p class="text-muted">Preencha os dados para começar</p>
         </div>
@@ -17,14 +19,16 @@
             <div class="mb-3">
                 <label class="form-label text-light fw-semibold">Nome da Live</label>
                 <input type="text" name="nome" class="form-control"
-                       placeholder="Ex: Live de Sábado — Novidades de Verão" required maxlength="100" />
-                <span class="text-danger small">@(ViewData.ModelState["nome"]?.Errors.FirstOrDefault()?.ErrorMessage)</span>
+                    placeholder="Ex: Live de Sábado — Novidades de Verão" required maxlength="100" />
+                <span
+                    class="text-danger small">@(ViewData.ModelState["nome"]?.Errors.FirstOrDefault()?.ErrorMessage)</span>
             </div>
 
             <div class="mb-4">
-                <label class="form-label text-light fw-semibold">Descrição <span class="text-muted">(opcional)</span></label>
+                <label class="form-label text-light fw-semibold">Descrição <span
+                        class="text-muted">(opcional)</span></label>
                 <textarea name="descricao" class="form-control" rows="2"
-                          placeholder="Tema, coleção, promoções do dia..."></textarea>
+                    placeholder="Tema, coleção, promoções do dia..."></textarea>
             </div>
 
             <div class="alert alert-warning small" role="alert">
