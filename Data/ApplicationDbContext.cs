@@ -8,14 +8,32 @@ namespace LiveStore.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
 
-        public DbSet<LiveModel>    Lives    { get; set; }
-        public DbSet<VendaModel>   Vendas   { get; set; }
-        public DbSet<ProdutoModel> Produtos { get; set; }
-        public DbSet<ClienteModel> Clientes { get; set; }
+        public DbSet<LiveModel> Lives { get; set; } = null!;
+        public DbSet<VendaModel> Vendas { get; set; } = null!;
+        public DbSet<ProdutoModel> Produtos { get; set; } = null!;
+        public DbSet<ClienteModel> Clientes { get; set; } = null!;
+        public DbSet<GastoMensalModel> Gastos { get; set; } = null!;
+        public DbSet<ClienteLiveRelatorioModel> RelatoriosEnviados { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // RelatorioEnviado — chave primária composta
+            modelBuilder.Entity<ClienteLiveRelatorioModel>()
+                .HasKey(r => new { r.LiveId, r.ClienteInstagram });
+
+            modelBuilder.Entity<ClienteLiveRelatorioModel>()
+                .HasOne(r => r.Live)
+                .WithMany()
+                .HasForeignKey(r => r.LiveId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ClienteLiveRelatorioModel>()
+                .HasOne(r => r.Cliente)
+                .WithMany()
+                .HasForeignKey(r => r.ClienteInstagram)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Cliente — chave primária é string (InstagramUser)
             modelBuilder.Entity<ClienteModel>()

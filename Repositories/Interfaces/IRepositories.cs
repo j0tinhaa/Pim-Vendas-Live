@@ -36,4 +36,13 @@ namespace LiveStore.Repositories.Interfaces
         void Adicionar(ClienteModel cliente);
         void SalvarAlteracoes();
     }
+
+    public interface IGastoRepository
+    {
+        IEnumerable<GastoMensalModel> ObterTodos();
+        GastoMensalModel? ObterPorId(int id);
+        void Adicionar(GastoMensalModel gasto);
+        void Remover(GastoMensalModel gasto);
+        void SalvarAlteracoes();
+    }
 }

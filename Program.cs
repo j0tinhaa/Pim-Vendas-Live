@@ -31,6 +31,7 @@ builder.Services.AddScoped<ILiveRepository,    LiveRepository>();
 builder.Services.AddScoped<IVendaRepository,   VendaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IGastoRepository,   GastoRepository>();
 
 // ── Serviços ──────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IDashboardService, DashboardService>();
@@ -38,6 +39,9 @@ builder.Services.AddScoped<ILiveService,      LiveService>();
 builder.Services.AddScoped<IVendaService,     VendaService>();
 builder.Services.AddScoped<IProdutoService,   ProdutoService>();
 builder.Services.AddScoped<IClienteService,   ClienteService>();
+builder.Services.AddScoped<IGastoService,     GastoService>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
+builder.Services.AddScoped<IWhatsAppService,  MockWhatsAppService>();
 
 var app = builder.Build();
 
@@ -45,6 +49,21 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+}
+
+// ── Seed de Dados Automático ──
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        LiveStore.Data.DbInitializer.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Um erro ocorreu ao recriar e popular o banco de dados.");
+    }
 }
 
 app.UseHttpsRedirection();

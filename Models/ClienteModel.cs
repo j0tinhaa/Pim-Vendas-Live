@@ -8,14 +8,32 @@ namespace LiveStore.Models
     /// </summary>
     public class ClienteModel
     {
+        private string _instagramUser = string.Empty;
+
         [Key]
         [Required(ErrorMessage = "Informe o @ do Instagram!")]
         [StringLength(50, ErrorMessage = "Máximo 50 caracteres.")]
         [Display(Name = "@ Instagram")]
-        public string InstagramUser { get; set; } = string.Empty;
+        public string InstagramUser 
+        { 
+            get => _instagramUser; 
+            set 
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _instagramUser = string.Empty;
+                }
+                else
+                {
+                    var normal = value.Trim().ToLower();
+                    if (!normal.StartsWith("@")) normal = "@" + normal;
+                    _instagramUser = normal;
+                }
+            }
+        }
 
-        public string ClienteInstagramFormatado =>
-            "@" + InstagramUser.Replace("@", "");
+        public string ClienteInstagramFormatado => InstagramUser; // Como já é normalizado, basta retornar
+
 
         [StringLength(100, ErrorMessage = "Máximo 100 caracteres.")]
         [Display(Name = "Nome")]

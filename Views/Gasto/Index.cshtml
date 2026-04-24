@@ -1,0 +1,47 @@
+@model IEnumerable<LiveStore.Models.GastoMensalModel>
+@{ ViewData["Title"] = "Gastos Mensais"; }
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-white"><i class="bi bi-wallet2 text-pink"></i> Gastos</h1>
+        <a asp-controller="Gasto" asp-action="Cadastrar" class="btn btn-pink">
+            <i class="bi bi-plus-lg"></i> Novo Gasto
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-livestore">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model)
+                {
+                    <tr>
+                        <td>@g.Data.ToString("dd/MM/yyyy")</td>
+                        <td>@g.Descricao</td>
+                        <td class="text-pink fw-bold">R$ @g.Valor.ToString("N2")</td>
+                        <td class="text-center">
+                            <a asp-controller="Gasto" asp-action="Editar" asp-route-id="@g.Id"
+                               class="btn btn-warning btn-sm me-2">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" 
+                                    onclick="confirmarExclusao('/Gasto/Excluir', 'Tem certeza que deseja excluir o gasto: @g.Descricao?', { id: @g.Id })">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                @if(!Model.Any()) {
+                    <tr><td colspan="4" class="text-center text-muted py-4">Nenhum gasto registrado.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

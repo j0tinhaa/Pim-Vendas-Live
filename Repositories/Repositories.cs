@@ -86,4 +86,22 @@ namespace LiveStore.Repositories
 
         public void SalvarAlteracoes() => _db.SaveChanges();
     }
+
+    public class GastoRepository : IGastoRepository
+    {
+        private readonly ApplicationDbContext _db;
+        public GastoRepository(ApplicationDbContext db) => _db = db;
+
+        public IEnumerable<GastoMensalModel> ObterTodos() =>
+            _db.Gastos.OrderByDescending(g => g.Data).ToList();
+
+        public GastoMensalModel? ObterPorId(int id) =>
+            _db.Gastos.FirstOrDefault(g => g.Id == id);
+
+        public void Adicionar(GastoMensalModel gasto) => _db.Gastos.Add(gasto);
+
+        public void Remover(GastoMensalModel gasto) => _db.Gastos.Remove(gasto);
+
+        public void SalvarAlteracoes() => _db.SaveChanges();
+    }
 }

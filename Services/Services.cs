@@ -10,14 +10,17 @@ namespace LiveStore.Services
         private readonly ILiveRepository    _liveRepo;
         private readonly IVendaRepository   _vendaRepo;
         private readonly IClienteRepository _clienteRepo;
+        private readonly IGastoRepository   _gastoRepo;
 
         public DashboardService(ILiveRepository liveRepo,
                                 IVendaRepository vendaRepo,
-                                IClienteRepository clienteRepo)
+                                IClienteRepository clienteRepo,
+                                IGastoRepository gastoRepo)
         {
             _liveRepo    = liveRepo;
             _vendaRepo   = vendaRepo;
             _clienteRepo = clienteRepo;
+            _gastoRepo   = gastoRepo;
         }
 
         public DashboardViewModel ObterDados()
@@ -32,6 +35,24 @@ namespace LiveStore.Services
 
             var liveMaiorFat = lives.OrderByDescending(l => l.FaturamentoTotal).FirstOrDefault();
 
+            // Métricas Inteligentes
+            decimal faturamentoMes = vendasAtivas.Where(v => v.DataVenda.Year == hoje.Year && v.DataVenda.Month == hoje.Month).Sum(v => v.Valor);
+            var gastosMes = _gastoRepo.ObterTodos().Where(g => g.Data.Year == hoje.Year && g.Data.Month == hoje.Month).Sum(g => g.Valor);
+            
+            decimal ticketMedio = vendasAtivas.Count > 0 ? vendasAtivas.Average(v => v.Valor) : 0;
+
+            TimeSpan? melhorHorario = null;
+            if (vendasAtivas.Any())
+            {
+                // Agrupa as vendas pela hora do dia e pega a hora com maior número de vendas (ou faturamento)
+                var horaMaisVendas = vendasAtivas
+                    .GroupBy(v => v.DataVenda.Hour)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .FirstOrDefault();
+                melhorHorario = new TimeSpan(horaMaisVendas, 0, 0);
+            }
+
             return new DashboardViewModel
             {
                 TotalLives           = lives.Count,
@@ -42,7 +63,12 @@ namespace LiveStore.Services
                 VendasHoje           = todasVendas.Count(v => v.DataVenda.Date == hoje),
                 LiveMaiorFaturamento = liveMaiorFat,
                 LiveAtiva            = _liveRepo.ObterAtiva(),
-                UltimasVendas        = todasVendas.OrderByDescending(v => v.DataVenda).Take(6).ToList()
+                UltimasVendas        = todasVendas.OrderByDescending(v => v.DataVenda).Take(6).ToList(),
+                
+                TicketMedio       = ticketMedio,
+                TotalGastosMes    = gastosMes,
+                LucroLiquidoMes   = faturamentoMes - gastosMes,
+                MelhorHorarioLive = melhorHorario
             };
         }
     }
@@ -119,6 +145,7 @@ namespace LiveStore.Services
 
             // Cadastro automático de cliente
             var instagram = input.ClienteInstagram.Trim().ToLower();
+            if (!instagram.StartsWith("@")) instagram = "@" + instagram;
             var cliente   = _clienteRepo.ObterPorInstagram(instagram);
             if (cliente == null)
             {
@@ -188,6 +215,7 @@ namespace LiveStore.Services
             if (venda == null) return false;
 
             var instagram = input.ClienteInstagram.Trim().ToLower();
+            if (!instagram.StartsWith("@")) instagram = "@" + instagram;
             var cliente   = _clienteRepo.ObterPorInstagram(instagram);
             if (cliente == null)
             {
@@ -276,12 +304,20 @@ namespace LiveStore.Services
 
         public IEnumerable<ClienteModel> ObterTodos() => _repo.ObterTodos();
 
+        private string NormalizarInstagram(string instagram)
+        {
+            if (string.IsNullOrWhiteSpace(instagram)) return string.Empty;
+            var norm = instagram.Trim().ToLower();
+            if (!norm.StartsWith("@")) norm = "@" + norm;
+            return norm;
+        }
+
         public ClienteModel? ObterPorInstagram(string instagram) =>
-            _repo.ObterPorInstagram(instagram.Trim().ToLower());
+            _repo.ObterPorInstagram(NormalizarInstagram(instagram));
 
         public ClienteModel ObterOuCriar(string instagram)
         {
-            var ig      = instagram.Trim().ToLower();
+            var ig      = NormalizarInstagram(instagram);
             var cliente = _repo.ObterPorInstagram(ig);
             if (cliente != null) return cliente;
 
@@ -298,6 +334,46 @@ namespace LiveStore.Services
 
             existente.Nome     = cliente.Nome?.Trim();
             existente.Telefone = cliente.Telefone?.Trim();
+            _repo.SalvarAlteracoes();
+            return true;
+        }
+    }
+
+    // ── Gasto Mensal ─────────────────────────────────────────────────────────
+    public class GastoService : IGastoService
+    {
+        private readonly IGastoRepository _repo;
+        public GastoService(IGastoRepository repo) => _repo = repo;
+
+        public IEnumerable<GastoMensalModel> ObterTodos() => _repo.ObterTodos();
+        public GastoMensalModel? ObterPorId(int id) => _repo.ObterPorId(id);
+
+        public void Cadastrar(GastoMensalModel gasto)
+        {
+            gasto.Descricao = gasto.Descricao.Trim();
+            _repo.Adicionar(gasto);
+            _repo.SalvarAlteracoes();
+        }
+
+        public bool Editar(GastoMensalModel gasto)
+        {
+            var existente = _repo.ObterPorId(gasto.Id);
+            if (existente == null) return false;
+
+            existente.Descricao = gasto.Descricao.Trim();
+            existente.Valor     = gasto.Valor;
+            existente.Data      = gasto.Data;
+
+            _repo.SalvarAlteracoes();
+            return true;
+        }
+
+        public bool Excluir(int id)
+        {
+            var gasto = _repo.ObterPorId(id);
+            if (gasto == null) return false;
+
+            _repo.Remover(gasto);
             _repo.SalvarAlteracoes();
             return true;
         }

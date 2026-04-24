@@ -44,6 +44,45 @@ namespace LiveStore.Services.Interfaces
         bool Editar(ClienteModel cliente);
     }
 
+    public interface IGastoService
+    {
+        IEnumerable<GastoMensalModel> ObterTodos();
+        GastoMensalModel? ObterPorId(int id);
+        void Cadastrar(GastoMensalModel gasto);
+        bool Editar(GastoMensalModel gasto);
+        bool Excluir(int id);
+    }
+
+    public interface IRelatorioService
+    {
+        byte[] GerarPdfVendasCliente(ClienteModel cliente, List<VendaModel> vendas, LiveModel live);
+    }
+
+    /// <summary>
+    /// Serviço de envio de relatório via WhatsApp.
+    /// Implemente MockWhatsAppService para dev/local,
+    /// ou configure TwilioWhatsAppService / CloudApiWhatsAppService para produção.
+    /// </summary>
+    public interface IWhatsAppService
+    {
+        /// <returns>Resultado com sucesso, mensagem de status e URL de download do PDF.</returns>
+        Task<ResultadoEnvioRelatorio> EnviarRelatorioAsync(
+            string telefone,
+            string nomeCliente,
+            byte[] pdfBytes,
+            string nomeArquivoPdf);
+    }
+
+    public class ResultadoEnvioRelatorio
+    {
+        public bool    Sucesso      { get; set; }
+        public string  Mensagem     { get; set; } = string.Empty;
+        /// <summary>URL pública do PDF (usada para envio via API de WhatsApp).</summary>
+        public string? UrlPdf       { get; set; }
+        /// <summary>Link wa.me para abrir WhatsApp Web (fallback).</summary>
+        public string? UrlWhatsApp  { get; set; }
+    }
+
     // ── ViewModels / Inputs ──────────────────────────────────────────────────
 
     public class DashboardViewModel
@@ -57,6 +96,12 @@ namespace LiveStore.Services.Interfaces
         public LiveModel? LiveMaiorFaturamento { get; set; }
         public LiveModel? LiveAtiva        { get; set; }
         public List<VendaModel> UltimasVendas { get; set; } = new();
+
+        // Novas Métricas
+        public TimeSpan? MelhorHorarioLive { get; set; }
+        public decimal TicketMedio         { get; set; }
+        public decimal TotalGastosMes      { get; set; }
+        public decimal LucroLiquidoMes     { get; set; }
     }
 
     public class NovaVendaInput
@@ -86,5 +131,21 @@ namespace LiveStore.Services.Interfaces
         public string? Erro          { get; set; }
         public bool ClienteCriado    { get; set; }
         public VendaModel? Venda     { get; set; }
+    }
+
+    // ── ViewModel para tela de envio de relatório ────────────────────────────
+
+    public class ClienteRelatorioItem
+    {
+        public ClienteModel Cliente       { get; set; } = null!;
+        public List<VendaModel> Vendas    { get; set; } = new();
+        public bool TemTelefone           => !string.IsNullOrWhiteSpace(Cliente.Telefone);
+        public bool RelatorioEnviado      { get; set; } = false;
+    }
+
+    public class RelatorioEnvioViewModel
+    {
+        public LiveModel Live                      { get; set; } = null!;
+        public List<ClienteRelatorioItem> Clientes { get; set; } = new();
     }
 }
