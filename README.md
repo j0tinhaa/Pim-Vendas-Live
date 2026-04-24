@@ -59,7 +59,7 @@ Registre vendas, acompanhe clientes, controle produtos e envie relatórios perso
 ---
 
 ### 🛒 Nova Venda
-<img src="TelasImagens/TELA NOVA-VENDA.png" alt="Nova Venda" width="100%"/>
+<img src="TelasImagens/TELA NOVA-VENDAAA.png" alt="Nova Venda" width="100%"/>
 
 ---
 
