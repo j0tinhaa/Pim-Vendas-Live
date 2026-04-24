@@ -11,8 +11,7 @@ namespace LiveStore.Data
                 serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
 
             // Garante que o banco seja deletado e recriado com os esquemas atuais
-            // IMPORTANTE: Isso apaga TODOS os dados.
-            context.Database.EnsureDeleted();
+            // Cria as tabelas do banco automaticamente (sem tentar apagar o banco antes)
             context.Database.Migrate();
 
             // Verifica se já existem clientes (caso Migrate persista dados, o que não deveria ocorrer com EnsureDeleted)

@@ -45,11 +45,8 @@ builder.Services.AddScoped<IWhatsAppService,  MockWhatsAppService>();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+// ── Mostra o erro detalhado mesmo em produção temporariamente para debug ──
+app.UseDeveloperExceptionPage();
 
 // ── Seed de Dados Automático ──
 using (var scope = app.Services.CreateScope())
