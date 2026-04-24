@@ -226,7 +226,7 @@ Compacte a pasta `publish/` e faça o upload no seu servidor (ex: [Somee.com](ht
 
 <div align="center">
 
-**Projeto Integrador — Análise e Desenvolvimento de Sistemas**  
+**Pjotah - João Pedro Vinhal**  
 
 </div>
 
