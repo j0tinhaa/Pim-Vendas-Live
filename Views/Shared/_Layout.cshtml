@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link href="https://cdn.datatables.net/v/dt/dt-2.3.7/datatables.min.css" rel="stylesheet">
 </head>
+
 <body>
 
     <!-- Botão hambúrguer (mobile) -->
@@ -25,58 +27,54 @@
         <hr class="sidebar-hr" />
 
         @{
-            var ctrl   = ViewContext.RouteData.Values["controller"]?.ToString();
+            var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
             var action = ViewContext.RouteData.Values["action"]?.ToString();
         }
 
         <ul class="nav flex-column">
             <li>
-                <a class="nav-link @(ctrl == "Home" ? "active" : "")"
-                   asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-speedometer2"></i> Dashboard
+                <a class="nav-link @(ctrl == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-graph-up-arrow text-pink"></i> Dashboard
                 </a>
             </li>
 
             <div class="nav-section-label">LIVE</div>
 
             <li>
-                <a class="nav-link @(ctrl == "Live" && action == "Ativa" ? "active" : "")"
-                   asp-controller="Live" asp-action="Ativa">
-                    <i class="bi bi-camera-video-fill text-pink"></i> Live Ativa
+                <a class="nav-link @(ctrl == "Live" && action == "Ativa" ? "active" : "")" asp-controller="Live"
+                    asp-action="Ativa">
+                    <i class="bi bi-camera-video text-pink"></i> Live Ativa
                 </a>
             </li>
             <li>
-                <a class="nav-link @(ctrl == "Live" && action == "Nova" ? "active" : "")"
-                   asp-controller="Live" asp-action="Nova">
-                    <i class="bi bi-plus-circle"></i> Nova Live
+                <a class="nav-link @(ctrl == "Live" && action == "Nova" ? "active" : "")" asp-controller="Live"
+                    asp-action="Nova">
+                    <i class="bi bi-plus-circle text-pink"></i> Nova Live
                 </a>
             </li>
             <li>
-                <a class="nav-link @(ctrl == "Live" && action == "Index" ? "active" : "")"
-                   asp-controller="Live" asp-action="Index">
-                    <i class="bi bi-collection-play"></i> Histórico de Lives
+                <a class="nav-link @(ctrl == "Live" && action == "Index" ? "active" : "")" asp-controller="Live"
+                    asp-action="Index">
+                    <i class="bi bi-collection-play text-pink"></i> Histórico de Lives
                 </a>
             </li>
 
             <div class="nav-section-label">CADASTROS</div>
 
             <li>
-                <a class="nav-link @(ctrl == "Produto" ? "active" : "")"
-                   asp-controller="Produto" asp-action="Index">
-                    <i class="bi bi-tag"></i> Produtos
+                <a class="nav-link @(ctrl == "Produto" ? "active" : "")" asp-controller="Produto" asp-action="Index">
+                    <i class="bi bi-tag text-pink"></i> Produtos
                 </a>
             </li>
             <li>
-                <a class="nav-link @(ctrl == "Cliente" ? "active" : "")"
-                   asp-controller="Cliente" asp-action="Index">
-                    <i class="bi bi-people"></i> Clientes
+                <a class="nav-link @(ctrl == "Cliente" ? "active" : "")" asp-controller="Cliente" asp-action="Index">
+                    <i class="bi bi-people text-pink"></i> Clientes
                 </a>
             </li>
-            
+
             <div class="nav-section-label">FINANCEIRO</div>
             <li>
-                <a class="nav-link @(ctrl == "Gasto" ? "active" : "")"
-                   asp-controller="Gasto" asp-action="Index">
+                <a class="nav-link @(ctrl == "Gasto" ? "active" : "")" asp-controller="Gasto" asp-action="Index">
                     <i class="bi bi-wallet2 text-pink"></i> Gastos
                 </a>
             </li>
@@ -84,7 +82,7 @@
 
         <!-- Rodapé: usuário + logout -->
         <div style="position:absolute;bottom:16px;left:14px;right:14px;">
-            <hr class="sidebar-hr"/>
+            <hr class="sidebar-hr" />
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <i class="bi bi-person-circle" style="color:var(--pink)"></i>
@@ -122,25 +120,27 @@
 
     <!-- Modal de Confirmação de Exclusão Global -->
     <div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark" style="border: 1px solid var(--pink);">
-          <div class="modal-header border-bottom-0">
-            <h5 class="modal-title text-white"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Confirmar Ação</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body text-light">
-            <p id="modalConfirmarExclusaoTexto">Tem certeza que deseja excluir este item?</p>
-          </div>
-          <div class="modal-footer border-top-0">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <form id="formConfirmarExclusao" method="post" action="">
-                @Html.AntiForgeryToken()
-                <div id="modalConfirmarExclusaoInputs"></div>
-                <button type="submit" class="btn btn-danger">Sim, Excluir</button>
-            </form>
-          </div>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark" style="border: 1px solid var(--pink);">
+                <div class="modal-header border-bottom-0">
+                    <h5 class="modal-title text-white"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                        Confirmar Ação</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-light">
+                    <p id="modalConfirmarExclusaoTexto">Tem certeza que deseja excluir este item?</p>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="formConfirmarExclusao" method="post" action="">
+                        @Html.AntiForgeryToken()
+                        <div id="modalConfirmarExclusaoInputs"></div>
+                        <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                    </form>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -149,4 +149,5 @@
     <script src="https://cdn.datatables.net/v/dt/dt-2.3.7/datatables.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>
