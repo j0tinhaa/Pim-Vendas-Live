@@ -1,3 +1,16 @@
+
+
+
+
+<div align="center">
+👨‍💻 Desenvolvido por
+  
+**[João Pedro Vinhal](https://www.linkedin.com/in/joão-pedro-vinhal/)**  
+
+</div>
+
+---
+
 <div align="center">
 
 <img src="TelasImagens/TELA LOGIN.png" alt="LiveStore Logo" width="100%"/>
