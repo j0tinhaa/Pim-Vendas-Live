@@ -10,9 +10,15 @@
 <div class="container-fluid">
 
     <div class="mb-4">
-        <a asp-controller="Live" asp-action="Index" class="btn btn-sm btn-outline-secondary mb-3">
-            <i class="bi bi-arrow-left"></i> Histórico
-        </a>
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+            <a asp-controller="Live" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Histórico
+            </a>
+            <a asp-controller="Live" asp-action="EnviarRelatorio" asp-route-id="@live.Id"
+               class="btn btn-pink btn-sm">
+                <i class="bi bi-send me-1"></i> Enviar Relatório
+            </a>
+        </div>
         <h1 class="text-white mb-0">@live.Nome</h1>
         @if (!string.IsNullOrWhiteSpace(live.Descricao))
         {
@@ -61,7 +67,7 @@
 
     @* Tabela *@
     <div class="table-responsive">
-        <table id="tabelaVendas" class="table table-dark table-hover align-middle">
+        <table id="tabelaVendas" class="table-livestore">
             <thead>
                 <tr>
                     <th>Cliente</th><th>Código</th><th>Produto</th>
@@ -82,13 +88,10 @@
                             <div class="d-flex justify-content-center gap-1">
                                 <a asp-controller="Venda" asp-action="Editar" asp-route-id="@v.Id"
                                    class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i></a>
-                                <form asp-controller="Venda" asp-action="Excluir" method="post"
-                                      onsubmit="return confirm('Remover esta venda?')">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@v.Id" />
-                                    <input type="hidden" name="liveId" value="@live.Id" />
-                                    <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-sm" title="Excluir"
+                                        onclick="confirmarExclusao('/Venda/Excluir', 'Tem certeza que deseja excluir esta venda do produto @v.NomeProduto?', { id: @v.Id, liveId: @live.Id })">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>

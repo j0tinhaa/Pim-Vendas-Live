@@ -1,0 +1,344 @@
+@* ============================================================
+   Views/Live/EnviarRelatorio.cshtml
+   ============================================================ *@
+@model LiveStore.Services.Interfaces.RelatorioEnvioViewModel
+@using LiveStore.Models
+@{
+    ViewData["Title"] = "Enviar Relatório";
+    var live = Model.Live;
+    var ptBR = new System.Globalization.CultureInfo("pt-BR");
+}
+
+<div class="container" style="max-width:760px">
+
+    @* Cabeçalho *@
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <a asp-controller="Live" asp-action="Detalhes" asp-route-id="@live.Id"
+               class="btn btn-sm btn-outline-secondary mb-2">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <h2 class="text-white mb-0"><i class="bi bi-send text-pink me-2"></i>Enviar Relatório</h2>
+            <small class="text-muted">
+                Live: <strong class="text-pink">@live.Nome</strong>
+                &mdash; @live.IniciadaEm.ToString("dd/MM/yyyy")
+            </small>
+        </div>
+    </div>
+
+    @* Instrução *@
+    <div class="alert" style="background:#1a1730;border:1px solid var(--pink);color:#e0e0f0;">
+        <i class="bi bi-info-circle-fill text-pink me-2"></i>
+        Selecione as clientes e clique em <strong>Enviar Relatório</strong>.
+        O PDF será baixado automaticamente e o WhatsApp abrirá com a mensagem pronta para envio.
+    </div>
+
+    @if (!Model.Clientes.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-person-x" style="font-size:3rem"></i>
+            <p class="mt-2">Nenhum cliente encontrado para esta live.</p>
+        </div>
+    }
+    else
+    {
+        @* Selecionar Todos *@
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkAll" />
+                <label class="form-check-label text-light" for="checkAll">Selecionar todos com telefone</label>
+            </div>
+            <span class="badge bg-secondary" id="contadorSelecionados">0 selecionados</span>
+        </div>
+
+        @* Lista de clientes *@
+        <div id="listaClientes" class="d-flex flex-column gap-3 mb-4">
+
+            @foreach (var item in Model.Clientes)
+            {
+                var insta    = item.Cliente.InstagramUser;
+                var nome     = string.IsNullOrWhiteSpace(item.Cliente.Nome) ? insta : item.Cliente.Nome;
+                var tel      = item.Cliente.Telefone ?? "";
+                var semTel   = string.IsNullOrWhiteSpace(tel);
+                var rawTel   = tel.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+                if (rawTel.Length > 0 && !rawTel.StartsWith("+"))
+                    rawTel = "55" + rawTel;
+
+                // ID do elemento (sanitize)
+                var safeId = insta.Replace("@", "").Replace(".", "_").Replace("/", "_");
+                var totalItem = item.Vendas
+                    .Where(v => v.Status != StatusVenda.Cancelado)
+                    .Sum(v => v.Valor);
+                var cardCls = semTel ? "cliente-card sem-telefone" : "cliente-card";
+                if (item.RelatorioEnviado) cardCls += " enviado";
+
+                <div class="@cardCls"
+                     data-instagram="@insta"
+                     data-telefone="@rawTel"
+                     data-nome="@nome"
+                     id="card_@safeId">
+                    <div class="d-flex align-items-start gap-3">
+                        @if (!semTel)
+                        {
+                            <div class="pt-1">
+                                <input class="form-check-input check-cliente" type="checkbox"
+                                       id="chk_@safeId" data-instagram="@insta" @(item.RelatorioEnviado ? "disabled" : "") />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="pt-1" style="width:20px"></div>
+                        }
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                <div>
+                                    <strong class="text-pink fs-6">@nome</strong>
+                                    @if (nome != insta)
+                                    {
+                                        <span class="text-muted small ms-2">@insta</span>
+                                    }
+                                </div>
+                                <div class="d-flex gap-2 align-items-center flex-wrap">
+                                    @if (semTel)
+                                    {
+                                        <span class="badge-sem-telefone">
+                                            <i class="bi bi-telephone-x"></i> Sem telefone
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">
+                                            <i class="bi bi-telephone me-1"></i>@tel
+                                        </span>
+                                    }
+                                    <span class="badge bg-secondary">
+                                        @item.Vendas.Count compra@(item.Vendas.Count != 1 ? "s" : "")
+                                    </span>
+                                    <span class="text-success small fw-bold">
+                                        @totalItem.ToString("C0", ptBR)
+                                    </span>
+                                </div>
+                            </div>
+
+                            @* Prévia de produtos *@
+                            <div class="mt-2 ps-1">
+                                @foreach (var v in item.Vendas.Take(3))
+                                {
+                                    var nomeCurto = v.NomeProduto.Length > 24
+                                        ? v.NomeProduto.Substring(0, 24) + "…"
+                                        : v.NomeProduto;
+                                    <span class="badge me-1 mb-1"
+                                          style="background:#241e4a;color:#aaa0cc;font-size:0.7rem">
+                                        <code class="text-pink" style="font-size:0.65rem">@v.CodigoProduto</code>
+                                        @nomeCurto
+                                    </span>
+                                }
+                                @if (item.Vendas.Count > 3)
+                                {
+                                    <span class="text-muted small">+@(item.Vendas.Count - 3) mais...</span>
+                                }
+                            </div>
+                        </div>
+
+                        @* Indicador pós-envio *@
+                        <div class="indicador-envio" id="ind_@safeId" style="display:@(item.RelatorioEnviado ? "block" : "none");min-width:100px;
+                             @(item.RelatorioEnviado ? "background:rgba(34,197,94,0.15);border:1px solid #22c55e;color:#22c55e;" : "")">
+                            @if (item.RelatorioEnviado)
+                            {
+                                <i class="bi bi-check-circle-fill me-1"></i><text>Enviado</text>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        @* Botões *@
+        <div class="d-flex gap-3 justify-content-center">
+            <a asp-controller="Live" asp-action="Detalhes" asp-route-id="@live.Id"
+               class="btn btn-outline-secondary px-4">
+                <i class="bi bi-x me-1"></i> Voltar
+            </a>
+            <button id="btnEnviar" class="btn btn-pink px-5" onclick="iniciarEnvio()">
+                <i class="bi bi-send me-2"></i> Enviar Relatórios
+            </button>
+        </div>
+
+        <form id="antiForgeryForm">
+            @Html.AntiForgeryToken()
+        </form>
+
+        @* Loading overlay *@
+        <div id="loadingOverlay"
+             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;">
+            <div class="d-flex justify-content-center align-items-center h-100">
+                <div class="text-center">
+                    <div class="spinner-border"
+                         style="width:3rem;height:3rem;border-color:#fa6b9a;border-right-color:transparent"></div>
+                    <p class="text-white mt-3 fw-semibold" id="loadingTexto">Gerando PDFs...</p>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+@* ── Estilos ──────────────────────────────────────────────────────────────── *@
+<style>
+    .cliente-card {
+        background: #1a1730;
+        border: 1px solid rgba(250,107,154,0.2);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: border-color 0.2s, background 0.2s;
+    }
+    .cliente-card:hover       { border-color: var(--pink); }
+    .cliente-card.sem-telefone{ opacity: 0.6; }
+    .cliente-card.selecionado { border-color: #fa6b9a; background: #1f1845; }
+    .cliente-card.enviado     { border-color: #22c55e; background: #0d1f14; }
+    .cliente-card.erro        { border-color: #ef4444; background: #200e0e; }
+
+    .badge-sem-telefone {
+        font-size: 0.72rem; padding: 3px 8px; border-radius: 20px;
+        background: rgba(239,68,68,0.15); color: #f87171;
+        border: 1px solid #ef4444;
+    }
+    .indicador-envio {
+        font-size: 0.8rem; padding: 4px 10px; border-radius: 20px;
+        text-align: center; white-space: nowrap;
+    }
+    .form-check-input:checked { background-color: #fa6b9a; border-color: #fa6b9a; }
+    #btnEnviar:disabled { opacity: 0.6; cursor: not-allowed; }
+</style>
+
+@section Scripts {
+<script>
+const LIVE_ID = @live.Id;
+
+function atualizarContador() {
+    const n = document.querySelectorAll('.check-cliente:checked').length;
+    document.getElementById('contadorSelecionados').textContent =
+        n + ' selecionado' + (n !== 1 ? 's' : '');
+    document.querySelectorAll('.check-cliente').forEach(c => {
+        c.closest('.cliente-card').classList.toggle('selecionado', c.checked);
+    });
+}
+
+document.getElementById('checkAll')?.addEventListener('change', function () {
+    document.querySelectorAll('.check-cliente').forEach(c => { c.checked = this.checked; });
+    atualizarContador();
+});
+document.querySelectorAll('.check-cliente').forEach(c => {
+    c.addEventListener('change', atualizarContador);
+});
+
+async function iniciarEnvio() {
+    const selecionados = [...document.querySelectorAll('.check-cliente:checked')];
+    if (!selecionados.length) {
+        alert('Selecione ao menos uma cliente.');
+        return;
+    }
+
+    const btn = document.getElementById('btnEnviar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+    mostrarLoading(true, 'Gerando PDFs e preparando envios...');
+
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    for (let i = 0; i < selecionados.length; i++) {
+        const chk = selecionados[i];
+        const instagram = chk.dataset.instagram;
+        const card = document.querySelector(`.cliente-card[data-instagram="${instagram}"]`);
+        const nome = card.dataset.nome;
+
+        atualizarLoadingTexto(`Processando ${i+1}/${selecionados.length}: ${nome}...`);
+
+        try {
+            // Dispara o envio real para a API (que usa o IWhatsAppService configurado)
+            const resp = await fetch('/Live/EnviarRelatorioCliente', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ LiveId: LIVE_ID, Instagram: instagram })
+            });
+
+            if (!resp.ok) throw new Error('Erro na comunicação com a API');
+            const data = await resp.json();
+
+            if (data.sucesso) {
+                // Se a API retornar uma URL pública do PDF (como no caso do Mock ou de envio por link)
+                // Vamos tentar baixá-lo automaticamente ou abrir em nova aba, dependendo da configuração
+                if (data.urlPdf && data.urlPdf.startsWith('/')) {
+                    // É um PDF local do MockWhatsAppService, vamos baixá-lo
+                    const a = document.createElement('a');
+                    a.href = data.urlPdf;
+                    a.download = 'relatorio_' + instagram.replace('@@','') + '.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                }
+
+                // Se houver fallback do WhatsApp Web (Mock), abrimos
+                if (data.urlWhatsApp) {
+                    await new Promise(r => setTimeout(r, 600));
+                    window.open(data.urlWhatsApp, '_blank');
+                }
+
+                marcarStatus(instagram, 'enviado');
+            } else {
+                console.error(data.mensagem);
+                marcarStatus(instagram, 'erro');
+            }
+        } catch(e) {
+            console.error(e);
+            marcarStatus(instagram, 'erro');
+        }
+
+        await new Promise(r => setTimeout(r, 300));
+    }
+
+    mostrarLoading(false);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Concluído!';
+    btn.classList.replace('btn-pink', 'btn-success');
+}
+
+function marcarStatus(instagram, status) {
+    const card = document.querySelector(`.cliente-card[data-instagram="${instagram}"]`);
+    // safeId igual ao gerado no Razor (arroba removida, . e / por _)
+    const safeId = instagram.replace('@@','').replace(/\./g,'_').replace(/\//g,'_');
+    const ind = document.getElementById('ind_' + safeId);
+
+    card.classList.remove('selecionado');
+    card.classList.add(status);
+
+    const chk = document.getElementById('chk_' + safeId);
+    if (chk) { chk.checked = false; chk.disabled = true; }
+
+    if (!ind) return;
+    if (status === 'enviado') {
+        Object.assign(ind.style, { display:'block', background:'rgba(34,197,94,0.15)',
+            border:'1px solid #22c55e', color:'#22c55e' });
+        ind.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Enviado';
+    } else {
+        Object.assign(ind.style, { display:'block', background:'rgba(239,68,68,0.15)',
+            border:'1px solid #ef4444', color:'#f87171' });
+        ind.innerHTML = '<i class="bi bi-x-circle me-1"></i>Erro';
+    }
+}
+
+function mostrarLoading(show, texto) {
+    document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    if (texto) atualizarLoadingTexto(texto);
+}
+function atualizarLoadingTexto(t) {
+    const el = document.getElementById('loadingTexto');
+    if (el) el.textContent = t;
+}
+</script>
+}

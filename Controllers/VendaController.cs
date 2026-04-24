@@ -11,14 +11,17 @@ namespace LiveStore.Controllers
         private readonly IVendaService  _vendaService;
         private readonly ILiveService   _liveService;
         private readonly IProdutoService _produtoService;
+        private readonly IClienteService _clienteService;
 
         public VendaController(IVendaService vendaService,
                                ILiveService liveService,
-                               IProdutoService produtoService)
+                               IProdutoService produtoService,
+                               IClienteService clienteService)
         {
             _vendaService   = vendaService;
             _liveService    = liveService;
             _produtoService = produtoService;
+            _clienteService = clienteService;
         }
 
         // GET /Venda/Cadastrar?liveId=5
@@ -132,6 +135,45 @@ namespace LiveStore.Controllers
                 nome  = produto.Nome,
                 preco = produto.Preco
             });
+        }
+
+        // GET /Venda/BuscarClientes?term=abc (AJAX Autocomplete)
+        [HttpGet]
+        public IActionResult BuscarClientes(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term)) return Json(new object[] {});
+            term = term.Trim().ToLower();
+
+            var clientes = _clienteService.ObterTodos()
+                .Where(c => c.InstagramUser.Contains(term) || (c.Nome != null && c.Nome.ToLower().Contains(term)))
+                .Select(c => new { 
+                    instagram = c.ClienteInstagramFormatado, 
+                    nome = c.Nome 
+                })
+                .Take(10)
+                .ToList();
+
+            return Json(clientes);
+        }
+
+        // GET /Venda/BuscarProdutosApi?term=abc (AJAX Autocomplete)
+        [HttpGet]
+        public IActionResult BuscarProdutosApi(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term)) return Json(new object[] {});
+            term = term.Trim().ToLower();
+
+            var produtos = _produtoService.ObterTodos()
+                .Where(p => p.Ativo && (p.Codigo.ToLower().Contains(term) || p.Nome.ToLower().Contains(term)))
+                .Select(p => new { 
+                    codigo = p.Codigo, 
+                    nome = p.Nome,
+                    preco = p.Preco
+                })
+                .Take(10)
+                .ToList();
+
+            return Json(produtos);
         }
     }
 }
