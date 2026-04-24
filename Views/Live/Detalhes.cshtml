@@ -1,0 +1,113 @@
+@model IEnumerable<LiveStore.Models.VendaModel>
+@using LiveStore.Models
+@{
+    ViewData["Title"] = "Detalhes da Live";
+    var live = (LiveModel)ViewBag.Live;
+    var vendas = Model.ToList();
+    var fat = vendas.Where(v => v.Status != StatusVenda.Cancelado).Sum(v => v.Valor);
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+            <a asp-controller="Live" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Histórico
+            </a>
+            <a asp-controller="Live" asp-action="EnviarRelatorio" asp-route-id="@live.Id"
+               class="btn btn-pink btn-sm">
+                <i class="bi bi-send me-1"></i> Enviar Relatório
+            </a>
+        </div>
+        <h1 class="text-white mb-0">@live.Nome</h1>
+        @if (!string.IsNullOrWhiteSpace(live.Descricao))
+        {
+            <p class="text-muted">@live.Descricao</p>
+        }
+        <small class="text-muted">
+            @live.IniciadaEm.ToString("dd/MM/yyyy HH:mm")
+            @if (live.EncerradaEm.HasValue)
+            { <text>→ @live.EncerradaEm.Value.ToString("HH:mm")</text> }
+        </small>
+    </div>
+
+    @* Resumo *@
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-dash-value">@vendas.Count</div>
+                <div class="card-dash-label">Total de Vendas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-dash-value text-success" style="font-size:1.4rem">
+                    @fat.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Faturamento</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-dash-value text-warning">
+                    @vendas.Count(v => v.Status == StatusVenda.Reservado)
+                </div>
+                <div class="card-dash-label">Reservados</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash text-center">
+                <div class="card-dash-value text-danger">
+                    @vendas.Count(v => v.Status == StatusVenda.Cancelado)
+                </div>
+                <div class="card-dash-label">Cancelados</div>
+            </div>
+        </div>
+    </div>
+
+    @* Tabela *@
+    <div class="table-responsive">
+        <table id="tabelaVendas" class="table-livestore">
+            <thead>
+                <tr>
+                    <th>Cliente</th><th>Código</th><th>Produto</th>
+                    <th>Valor</th><th>Horário</th><th>Status</th><th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in vendas)
+                {
+                    <tr>
+                        <td><span class="text-pink fw-bold">@v.ClienteInstagramFormatado</span></td>
+                        <td><code>@v.CodigoProduto</code></td>
+                        <td>@v.NomeProduto</td>
+                        <td>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>@v.DataVenda.ToString("HH:mm")</td>
+                        <td>@Html.Raw(BadgeStatus(v.Status))</td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a asp-controller="Venda" asp-action="Editar" asp-route-id="@v.Id"
+                                   class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                                <button type="button" class="btn btn-danger btn-sm" title="Excluir"
+                                        onclick="confirmarExclusao('/Venda/Excluir', 'Tem certeza que deseja excluir esta venda do produto @v.NomeProduto?', { id: @v.Id, liveId: @live.Id })">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@functions {
+    string BadgeStatus(StatusVenda s) => s switch
+    {
+        StatusVenda.Reservado => "<span class='status-badge badge-reservado'>Reservado</span>",
+        StatusVenda.Pago      => "<span class='status-badge badge-pago'>Pago</span>",
+        StatusVenda.Entregue  => "<span class='status-badge badge-entregue'>Entregue</span>",
+        StatusVenda.Cancelado => "<span class='status-badge badge-cancelado'>Cancelado</span>",
+        _                     => ""
+    };
+}

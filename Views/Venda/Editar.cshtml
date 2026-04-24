@@ -1,0 +1,70 @@
+@model LiveStore.Services.Interfaces.EditarVendaInput
+@using LiveStore.Models
+@{
+    ViewData["Title"] = "Editar Venda";
+    int vendaId = (int)ViewBag.VendaId;
+}
+
+<div class="container" style="max-width:640px">
+    <div class="form-card">
+        <div class="text-center mb-4">
+            <h2 class="text-white"><i class="bi bi-pencil-square text-pink"></i> Editar Venda</h2>
+        </div>
+
+        <form method="post" asp-controller="Venda" asp-action="Editar" asp-route-id="@vendaId">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Instagram da Cliente</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-pink border-secondary"></span>
+                    <input type="text" class="form-control" asp-for="ClienteInstagram" autocomplete="off" />
+                </div>
+                <span class="text-danger small" asp-validation-for="ClienteInstagram"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Código do Produto</label>
+                <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto" autocomplete="off" />
+                <span class="text-danger small" asp-validation-for="CodigoProduto"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Nome do Produto</label>
+                <input type="text" class="form-control" asp-for="NomeProduto" />
+                <span class="text-danger small" asp-validation-for="NomeProduto"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Valor (R$)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-light border-secondary">R$</span>
+                    <input type="number" class="form-control" asp-for="Valor" min="0.01" step="0.01" />
+                </div>
+                <span class="text-danger small" asp-validation-for="Valor"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Status</label>
+                <select class="form-select" asp-for="Status"
+                        asp-items="Html.GetEnumSelectList<LiveStore.Models.StatusVenda>()"></select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-light fw-semibold">Observações</label>
+                <textarea class="form-control" asp-for="Observacoes" rows="2"></textarea>
+            </div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-warning w-50 fw-semibold text-dark">
+                    <i class="bi bi-check-circle me-1"></i> Salvar
+                </button>
+                <a asp-controller="Live" asp-action="Ativa" class="btn btn-secondary w-50">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

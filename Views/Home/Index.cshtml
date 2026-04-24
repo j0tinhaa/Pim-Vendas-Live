@@ -1,5 +1,173 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+@model LiveStore.Services.Interfaces.DashboardViewModel
+@using LiveStore.Models
+@{  ViewData["Title"] = "Dashboard"; }
 
-<div class="home-bg"></div>
+<div class="container-fluid">
+    <div class="page-header mb-4">
+        <h1><i class="bi bi-speedometer2 text-pink"></i> Dashboard</h1>
+        <small class="text-muted">Visão geral da loja</small>
+    </div>
+
+    @* Banner de live ativa *@
+    @if (Model.LiveAtiva != null)
+    {
+        <div class="live-banner mb-4">
+            <span class="live-dot"></span>
+            <strong>Live em andamento:</strong> @Model.LiveAtiva.Nome
+            <a asp-controller="Live" asp-action="Ativa" class="btn btn-sm btn-light ms-3">
+                <i class="bi bi-arrow-right"></i> Ir para a live
+            </a>
+        </div>
+    }
+
+    @* Cards principais *@
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-dash">
+                <div class="card-dash-icon">📦</div>
+                <div class="card-dash-value">@Model.TotalVendas</div>
+                <div class="card-dash-label">Total de Vendas</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash">
+                <div class="card-dash-icon">📅</div>
+                <div class="card-dash-value">@Model.VendasHoje</div>
+                <div class="card-dash-label">Vendas Hoje</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash">
+                <div class="card-dash-icon">💰</div>
+                <div class="card-dash-value faturamento">
+                    @Model.FaturamentoTotal.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Faturamento Total</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash">
+                <div class="card-dash-icon">👥</div>
+                <div class="card-dash-value">@Model.TotalClientes</div>
+                <div class="card-dash-label">Clientes</div>
+            </div>
+        </div>
+    </div>
+
+    @* Métricas Inteligentes *@
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #6366f1;">
+                <div class="card-dash-icon">📈</div>
+                <div class="card-dash-value text-info">
+                    @Model.TicketMedio.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Ticket Médio</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #ef4444;">
+                <div class="card-dash-icon">📉</div>
+                <div class="card-dash-value text-danger">
+                    @Model.TotalGastosMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Gastos do Mês</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #10b981;">
+                <div class="card-dash-icon">💸</div>
+                <div class="card-dash-value text-success">
+                    @Model.LucroLiquidoMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Lucro Líquido (Mês)</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #f59e0b;" title="Horário com maior número de vendas na história.">
+                <div class="card-dash-icon">⏰</div>
+                <div class="card-dash-value text-warning">
+                    @(Model.MelhorHorarioLive.HasValue ? Model.MelhorHorarioLive.Value.ToString(@"hh\:mm") : "--:--")
+                </div>
+                <div class="card-dash-label">Melhor Horário p/ Live</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        @* Live com maior faturamento *@
+        <div class="col-md-5">
+            <div class="card-dash h-100">
+                <h6 class="text-muted mb-3"><i class="bi bi-trophy-fill text-warning me-1"></i>Live com Maior Faturamento</h6>
+                @if (Model.LiveMaiorFaturamento != null)
+                {
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-white fs-5">@Model.LiveMaiorFaturamento.Nome</div>
+                            <small class="text-muted">@Model.LiveMaiorFaturamento.IniciadaEm.ToString("dd/MM/yyyy")</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-success fw-bold fs-5">
+                                @Model.LiveMaiorFaturamento.FaturamentoTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                            </div>
+                            <small class="text-muted">@Model.LiveMaiorFaturamento.TotalVendas vendas</small>
+                        </div>
+                    </div>
+                    <a asp-controller="Live" asp-action="Detalhes" asp-route-id="@Model.LiveMaiorFaturamento.Id"
+                       class="btn btn-outline-light btn-sm mt-3">Ver detalhes</a>
+                }
+                else
+                {
+                    <p class="text-muted">Nenhuma live realizada ainda.</p>
+                }
+            </div>
+        </div>
+
+        @* Últimas vendas *@
+        <div class="col-md-7">
+            <div class="card-dash h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-muted mb-0"><i class="bi bi-clock-history me-1"></i>Últimas Vendas</h6>
+                    <a asp-controller="Live" asp-action="Ativa" class="btn btn-sm btn-outline-light">Ver live</a>
+                </div>
+
+                @if (Model.UltimasVendas.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table-livestore mb-0">
+                            <thead><tr>
+                                <th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th>
+                            </tr></thead>
+                            <tbody>
+                                @foreach (var v in Model.UltimasVendas)
+                                {
+                                    <tr>
+                                        <td><small class="text-pink">@(v.Cliente?.Nome ?? v.ClienteInstagramFormatado)</small></td>
+                                        <td><small>@v.CodigoProduto — @v.NomeProduto</small></td>
+                                        <td><small>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</small></td>
+                                        <td>@Html.Raw(BadgeStatus(v.Status))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Nenhuma venda registrada ainda.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string BadgeStatus(StatusVenda s) => s switch
+    {
+        StatusVenda.Reservado => "<span class='status-badge badge-reservado'>Reservado</span>",
+        StatusVenda.Pago      => "<span class='status-badge badge-pago'>Pago</span>",
+        StatusVenda.Entregue  => "<span class='status-badge badge-entregue'>Entregue</span>",
+        StatusVenda.Cancelado => "<span class='status-badge badge-cancelado'>Cancelado</span>",
+        _                     => ""
+    };
+}

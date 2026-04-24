@@ -1,0 +1,52 @@
+@model LiveStore.Models.GastoMensalModel
+@{ ViewData["Title"] = "Editar Gasto"; }
+
+<div class="container" style="max-width:640px">
+    <div class="form-card">
+        <div class="mb-3">
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+        <div class="text-center mb-4">
+            <h2 class="text-white"><i class="bi bi-pencil-square text-pink"></i> Editar Gasto</h2>
+        </div>
+
+        <form method="post" asp-action="Editar">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Descrição</label>
+                <input type="text" class="form-control" asp-for="Descricao" />
+                <span class="text-danger small" asp-validation-for="Descricao"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Valor (R$)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-light border-secondary">R$</span>
+                    <input type="number" class="form-control" asp-for="Valor" min="0.01" step="0.01" />
+                </div>
+                <span class="text-danger small" asp-validation-for="Valor"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-light fw-semibold">Data</label>
+                <input type="date" class="form-control" asp-for="Data" />
+                <span class="text-danger small" asp-validation-for="Data"></span>
+            </div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-warning w-50 fw-semibold text-dark">
+                    <i class="bi bi-check-circle me-1"></i> Salvar
+                </button>
+                <a asp-action="Index" class="btn btn-secondary w-50">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

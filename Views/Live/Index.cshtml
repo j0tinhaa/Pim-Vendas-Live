@@ -1,0 +1,83 @@
+@* ============================================================
+   Views/Live/Index.cshtml — Histórico de lives
+   ============================================================ *@
+@model IEnumerable<LiveStore.Models.LiveModel>
+@using LiveStore.Models
+@{ ViewData["Title"] = "Histórico de Lives"; }
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="text-white mb-0"><i class="bi bi-collection-play text-pink"></i> Histórico de Lives</h1>
+            <small class="text-muted">Todas as lives realizadas</small>
+        </div>
+        <a asp-controller="Live" asp-action="Nova" class="btn btn-pink">
+            <i class="bi bi-plus-circle me-1"></i> Nova Live
+        </a>
+    </div>
+
+    <div class="row g-3">
+        @foreach (var live in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="card-dash live-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="text-white mb-1">@live.Nome</h5>
+                            <small class="text-muted">@live.IniciadaEm.ToString("dd/MM/yyyy HH:mm")</small>
+                        </div>
+                        @if (live.Status == StatusLive.Ativa)
+                        {
+                            <span class="badge bg-danger live-badge-ativa">AO VIVO</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Encerrada</span>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(live.Descricao))
+                    {
+                        <p class="text-muted small mb-2">@live.Descricao</p>
+                    }
+
+                    <div class="d-flex gap-3 mb-3">
+                        <div>
+                            <span class="fw-bold text-white">@live.TotalVendas</span>
+                            <small class="text-muted d-block">vendas</small>
+                        </div>
+                        <div>
+                            <span class="fw-bold text-success">@live.FaturamentoTotal.ToString("C0", new System.Globalization.CultureInfo("pt-BR"))</span>
+                            <small class="text-muted d-block">faturamento</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        @if (live.Status == StatusLive.Ativa)
+                        {
+                            <a asp-controller="Live" asp-action="Ativa" class="btn btn-pink btn-sm w-100">
+                                <i class="bi bi-camera-video me-1"></i> Entrar na Live
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Live" asp-action="Detalhes" asp-route-id="@live.Id"
+                               class="btn btn-outline-light btn-sm w-100">
+                                <i class="bi bi-eye me-1"></i> Ver Detalhes
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="bi bi-camera-video-off" style="font-size:3rem"></i>
+                <p class="mt-2">Nenhuma live realizada ainda.</p>
+                <a asp-controller="Live" asp-action="Nova" class="btn btn-pink">Iniciar primeira live</a>
+            </div>
+        }
+    </div>
+</div>

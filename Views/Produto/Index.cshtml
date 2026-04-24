@@ -1,0 +1,51 @@
+@* ============================================================
+   Views/Produto/Index.cshtml
+   ============================================================ *@
+@model IEnumerable<LiveStore.Models.ProdutoModel>
+@{ ViewData["Title"] = "Produtos"; }
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="text-white"><i class="bi bi-tag text-pink"></i> Produtos</h1>
+        <a asp-controller="Produto" asp-action="Cadastrar" class="btn btn-pink">
+            <i class="bi bi-plus-circle me-1"></i> Novo Produto
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table id="tabelaProdutos" class="table-livestore">
+            <thead>
+                <tr>
+                    <th>Código</th><th>Nome</th><th>Preço</th>
+                    <th>Tipo</th><th>Cor</th><th>Tamanho</th>
+                    <th>Status</th><th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td><code class="text-pink">@p.Codigo</code></td>
+                        <td>@p.Nome</td>
+                        <td>@p.Preco.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
+                        <td>@(p.Tipo ?? "—")</td>
+                        <td>@(p.Cor ?? "—")</td>
+                        <td>@(p.Tamanho ?? "—")</td>
+                        <td>
+                            @if (p.Ativo)
+                            { <span class="status-badge badge-pago">Ativo</span> }
+                            else
+                            { <span class="status-badge badge-cancelado">Inativo</span> }
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a asp-controller="Produto" asp-action="Editar" asp-route-id="@p.Id"
+                                   class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
