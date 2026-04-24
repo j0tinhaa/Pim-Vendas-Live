@@ -47,6 +47,14 @@ namespace LiveStore.Controllers
         public IActionResult Editar(ProdutoModel produto)
         {
             if (!ModelState.IsValid) return View(produto);
+            
+            var existente = _service.ObterPorCodigo(produto.Codigo.ToUpper());
+            if (existente != null && existente.Id != produto.Id)
+            {
+                ModelState.AddModelError("Codigo", "Já existe outro produto com esse código.");
+                return View(produto);
+            }
+
             _service.Editar(produto);
             TempData["MensagemSucesso"] = "Produto atualizado!";
             return RedirectToAction(nameof(Index));

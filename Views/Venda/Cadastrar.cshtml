@@ -41,8 +41,8 @@
                 <label class="form-label text-light fw-semibold">Código do Produto</label>
                 <div class="input-group">
                     <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto"
-                           placeholder="Ex: ROSA-001" id="inputCodigo" autocomplete="off" />
-                    <button type="button" class="btn btn-outline-secondary" onclick="buscarProduto()">
+                           placeholder="Ex: ROSA-001" autocomplete="off" />
+                    <button type="button" class="btn btn-outline-secondary" id="btnBuscarProduto" title="Buscar Produto">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
@@ -54,7 +54,7 @@
             <div class="mb-3">
                 <label class="form-label text-light fw-semibold">Nome do Produto</label>
                 <input type="text" class="form-control" asp-for="NomeProduto"
-                       placeholder="Ex: Blusa floral rosa P" id="inputNome" />
+                       placeholder="Ex: Blusa floral rosa P" />
                 <span class="text-danger small" asp-validation-for="NomeProduto"></span>
             </div>
 
@@ -64,7 +64,7 @@
                 <div class="input-group">
                     <span class="input-group-text bg-dark text-light border-secondary">R$</span>
                     <input type="number" class="form-control" asp-for="Valor"
-                           min="0.01" step="0.01" placeholder="0,00" id="inputValor" />
+                           min="0.01" step="0.01" placeholder="0,00" />
                 </div>
                 <span class="text-danger small" asp-validation-for="Valor"></span>
             </div>
@@ -96,30 +96,33 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        function buscarProduto() {
-            const codigo = document.getElementById('inputCodigo').value.trim();
-            if (!codigo) return;
+        $(function() {
+            function buscarProdutoManualmente() {
+                const codigo = $('#CodigoProduto').val().trim();
+                if (!codigo) return;
 
-            fetch(`/Venda/BuscarProduto?codigo=${encodeURIComponent(codigo)}`)
-                .then(r => {
-                    if (!r.ok) throw new Error('Produto não encontrado');
-                    return r.json();
-                })
-                .then(p => {
-                    document.getElementById('inputNome').value  = p.nome;
-                    document.getElementById('inputValor').value = p.preco;
-                    document.getElementById('produtoFeedback').innerHTML =
-                        `<span class="text-success"><i class="bi bi-check-circle"></i> Produto encontrado: <strong>${p.nome}</strong></span>`;
-                })
-                .catch(() => {
-                    document.getElementById('produtoFeedback').innerHTML =
-                        `<span class="text-warning"><i class="bi bi-exclamation-circle"></i> Código não encontrado no cadastro. Preencha manualmente.</span>`;
-                });
-        }
+                $.get('/Venda/BuscarProduto', { codigo: codigo })
+                    .done(function(p) {
+                        $('#NomeProduto').val(p.nome);
+                        // Ajusta o valor para o formato numérico sem formatação string local do pt-BR para o input number
+                        $('#Valor').val(p.preco.toFixed(2).replace('.', ','));
+                        $('#produtoFeedback').html(`<span class="text-success"><i class="bi bi-check-circle"></i> Produto encontrado: <strong>${p.nome}</strong></span>`);
+                    })
+                    .fail(function() {
+                        $('#produtoFeedback').html(`<span class="text-warning"><i class="bi bi-exclamation-circle"></i> Código não encontrado. Preencha manualmente.</span>`);
+                    });
+            }
 
-        // Busca ao pressionar Enter no campo de código
-        document.getElementById('inputCodigo').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); buscarProduto(); }
+            $('#btnBuscarProduto').on('click', buscarProdutoManualmente);
+
+            $('#CodigoProduto').on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    buscarProdutoManualmente();
+                }
+            });
+            
+            // Impede que o form seja submetido se o usuário apertar Enter em qualquer lugar além do botão submit (opcional, já tratado acima para o CodigoProduto)
         });
     </script>
 }

@@ -18,14 +18,14 @@
                 <label class="form-label text-light fw-semibold">Instagram da Cliente</label>
                 <div class="input-group">
                     <span class="input-group-text bg-dark text-pink border-secondary"></span>
-                    <input type="text" class="form-control" asp-for="ClienteInstagram" />
+                    <input type="text" class="form-control" asp-for="ClienteInstagram" autocomplete="off" />
                 </div>
                 <span class="text-danger small" asp-validation-for="ClienteInstagram"></span>
             </div>
 
             <div class="mb-3">
                 <label class="form-label text-light fw-semibold">Código do Produto</label>
-                <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto" />
+                <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto" autocomplete="off" />
                 <span class="text-danger small" asp-validation-for="CodigoProduto"></span>
             </div>
 

@@ -54,6 +54,46 @@
         </div>
     </div>
 
+    @* Métricas Inteligentes *@
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #6366f1;">
+                <div class="card-dash-icon">📈</div>
+                <div class="card-dash-value text-info">
+                    @Model.TicketMedio.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Ticket Médio</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #ef4444;">
+                <div class="card-dash-icon">📉</div>
+                <div class="card-dash-value text-danger">
+                    @Model.TotalGastosMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Gastos do Mês</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #10b981;">
+                <div class="card-dash-icon">💸</div>
+                <div class="card-dash-value text-success">
+                    @Model.LucroLiquidoMes.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))
+                </div>
+                <div class="card-dash-label">Lucro Líquido (Mês)</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-dash" style="border-color: #f59e0b;" title="Horário com maior número de vendas na história.">
+                <div class="card-dash-icon">⏰</div>
+                <div class="card-dash-value text-warning">
+                    @(Model.MelhorHorarioLive.HasValue ? Model.MelhorHorarioLive.Value.ToString(@"hh\:mm") : "--:--")
+                </div>
+                <div class="card-dash-label">Melhor Horário p/ Live</div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3">
         @* Live com maior faturamento *@
         <div class="col-md-5">
@@ -94,7 +134,7 @@
                 @if (Model.UltimasVendas.Any())
                 {
                     <div class="table-responsive">
-                        <table class="table table-dark table-sm align-middle mb-0">
+                        <table class="table-livestore mb-0">
                             <thead><tr>
                                 <th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th>
                             </tr></thead>

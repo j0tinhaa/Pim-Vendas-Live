@@ -53,3 +53,87 @@ document.addEventListener("click", function (e) {
     if (!sidebar.contains(e.target) && !btn.contains(e.target))
         sidebar.classList.remove("active");
 });
+
+// ── Autocomplete (Clientes e Produtos) ──────────────────────────────────────
+function setupAutocomplete(inputSelector, dataUrl, itemRenderer, onSelect) {
+    const $input = $(inputSelector);
+    if (!$input.length) return;
+
+    $input.wrap('<div class="autocomplete-wrapper" style="position: relative;"></div>');
+    const $list = $('<div class="autocomplete-list" style="display:none;"></div>').appendTo($input.parent());
+
+    let timeout = null;
+
+    $input.on('input', function() {
+        clearTimeout(timeout);
+        const term = $(this).val();
+        if (term.length < 1) {
+            $list.hide().empty();
+            return;
+        }
+
+        timeout = setTimeout(() => {
+            $.get(dataUrl, { term: term }, function(data) {
+                $list.empty();
+                if (data.length === 0) {
+                    $list.hide();
+                    return;
+                }
+
+                data.forEach(item => {
+                    const $item = $(itemRenderer(item)).addClass('autocomplete-item');
+                    $item.on('mousedown', function(e) {
+                        e.preventDefault(); // Evita blur do input antes de clicar
+                        onSelect(item, $input);
+                        $list.hide();
+                    });
+                    $list.append($item);
+                });
+                $list.show();
+            });
+        }, 200); // 200ms debounce
+    });
+
+    $input.on('blur', () => setTimeout(() => $list.hide(), 150));
+    $input.on('focus', () => { if ($list.children().length > 0) $list.show(); });
+}
+
+$(function() {
+    setupAutocomplete('#ClienteInstagram', '/Venda/BuscarClientes', 
+        (c) => `<div><strong>${c.instagram}</strong> <span class="text-muted">${c.nome ? '- ' + c.nome : ''}</span></div>`,
+        (c, $input) => $input.val(c.instagram)
+    );
+
+    setupAutocomplete('#CodigoProduto', '/Venda/BuscarProdutosApi', 
+        (p) => `<div><strong>${p.codigo}</strong> - ${p.nome} <span class="text-pink fw-bold float-end">R$ ${p.preco.toFixed(2).replace('.',',')}</span></div>`,
+        (p, $input) => {
+            $input.val(p.codigo);
+            // Preenche os outros campos
+            const $nome = $('#NomeProduto');
+            if ($nome.length && $nome.val() === '') $nome.val(p.nome);
+            
+            const $valor = $('#Valor');
+            if ($valor.length) {
+                // Remove formatação se houver
+                $valor.val(p.preco.toFixed(2).replace('.', ','));
+            }
+        }
+    );
+});
+
+// ── Modal Global de Confirmação ─────────────────────────────────────────────
+function confirmarExclusao(url, texto, inputsExtras) {
+    $('#modalConfirmarExclusaoTexto').text(texto || 'Tem certeza que deseja excluir este item?');
+    $('#formConfirmarExclusao').attr('action', url);
+    
+    let htmlInputs = '';
+    if (inputsExtras) {
+        for(let key in inputsExtras) {
+            htmlInputs += `<input type="hidden" name="${key}" value="${inputsExtras[key]}" />`;
+        }
+    }
+    $('#modalConfirmarExclusaoInputs').html(htmlInputs);
+    
+    var myModal = new bootstrap.Modal(document.getElementById('modalConfirmarExclusao'));
+    myModal.show();
+}

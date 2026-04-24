@@ -180,3 +180,68 @@ body { background-color: var(--bg-body) !important; color: #e0e0f0; }
 
 /* --- PÁGINA: cabeçalho padrão --- */
 .page-header h1 { color: white; font-size: 1.7rem; }
+
+/* --- AUTOCOMPLETE --- */
+.autocomplete-wrapper { position: relative; width: 100%; }
+.autocomplete-list {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 1050;
+    background: #1a1835; border: 1px solid var(--pink); border-top: none;
+    border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.autocomplete-item {
+    padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #2d2b55;
+    color: #e0e0f0; transition: background 0.15s;
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover { background: var(--pink-glow); color: white; }
+
+/* --- TABELAS PADRONIZADAS (.table-livestore) --- */
+.table-livestore {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--pink);
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #13112e; /* Fundo escuro */
+    color: #e0e0f0;
+    margin-bottom: 1rem;
+}
+.table-livestore thead {
+    background-color: rgba(250, 107, 154, 0.15); /* Fundo sutil do thead */
+}
+.table-livestore th {
+    padding: 14px 18px;
+    border-bottom: 2px solid var(--pink);
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+.table-livestore td {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+/* Garantir que as tabelas sobrepujem o DataTables */
+table.dataTable.table-livestore tbody tr {
+    background-color: transparent !important;
+}
+.table-livestore tbody tr:nth-child(odd),
+table.dataTable.table-livestore tbody tr.odd {
+    background-color: #13112e !important; 
+}
+.table-livestore tbody tr:nth-child(even),
+table.dataTable.table-livestore tbody tr.even {
+    background-color: rgba(255, 255, 255, 0.02) !important; /* Efeito zebrado */
+}
+.table-livestore tbody tr:hover,
+table.dataTable.table-livestore tbody tr:hover {
+    background-color: rgba(250, 107, 154, 0.08) !important; /* Hover suave */
+}
+.table-livestore tbody tr:last-child td {
+    border-bottom: none;
+}
+
