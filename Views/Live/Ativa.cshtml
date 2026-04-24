@@ -60,7 +60,7 @@
                 @foreach (var v in vendas)
                 {
                     <tr>
-                        <td><span class="text-pink">@(v.Cliente?.Nome ?? v.ClienteInstagramFormatado)</span></td>
+                        <td><span class="text-pink fw-bold">@v.ClienteInstagramFormatado</span></td>
                         <td><code>@v.CodigoProduto</code></td>
                         <td>@v.NomeProduto</td>
                         <td>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>

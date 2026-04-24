@@ -47,7 +47,7 @@
                     @foreach (var venda in Model)
                     {
                         <tr>
-                            <td>@venda.Cliente</td>
+                            <td><span class="text-pink fw-bold">@venda.ClienteInstagramFormatado</span></td>
                             <td><code class="text-pink">@venda.CodigoProduto</code></td>
                             <td>@venda.Produto</td>
                             <td>@venda.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
