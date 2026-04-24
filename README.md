@@ -5,7 +5,7 @@
 <div align="center">
 👨‍💻 Desenvolvido por
   
-**[João Pedro Vinhal](https://www.linkedin.com/in/joão-pedro-vinhal/)**  
+**[João Pedro Vinhal](https://www.linkedin.com/in/pjotah/)**  
 
 </div>
 
@@ -239,7 +239,7 @@ Compacte a pasta `publish/` e faça o upload no seu servidor (ex: [Somee.com](ht
 
 <div align="center">
 
-**[João Pedro Vinhal](https://www.linkedin.com/in/joão-pedro-vinhal/)**  
+**[João Pedro Vinhal](https://www.linkedin.com/in/pjotah/)**  
 
 </div>
 
