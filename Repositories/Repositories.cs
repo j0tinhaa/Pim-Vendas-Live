@@ -35,38 +35,25 @@ namespace LiveStore.Repositories
 
         public IEnumerable<VendaModel> ObterPorLive(int liveId) =>
             _db.Vendas.Include(v => v.Cliente)
-                      .Include(v => v.Produto)
                       .Where(v => v.LiveId == liveId)
                       .OrderByDescending(v => v.DataVenda)
                       .ToList();
 
         public VendaModel? ObterPorId(int id) =>
             _db.Vendas.Include(v => v.Cliente)
-                      .Include(v => v.Produto)
                       .FirstOrDefault(v => v.Id == id);
+
+        public bool ExisteCodigoNaLive(int liveId, string codigo, int? excetoVendaId)
+        {
+            var query = _db.Vendas.Where(v => v.LiveId == liveId && v.Codigo == codigo);
+            if (excetoVendaId.HasValue)
+                query = query.Where(v => v.Id != excetoVendaId.Value);
+            return query.Any();
+        }
 
         public void Adicionar(VendaModel venda) => _db.Vendas.Add(venda);
 
         public void Remover(VendaModel venda) => _db.Vendas.Remove(venda);
-
-        public void SalvarAlteracoes() => _db.SaveChanges();
-    }
-
-    public class ProdutoRepository : IProdutoRepository
-    {
-        private readonly ApplicationDbContext _db;
-        public ProdutoRepository(ApplicationDbContext db) => _db = db;
-
-        public IEnumerable<ProdutoModel> ObterTodos() =>
-            _db.Produtos.OrderBy(p => p.Codigo).ToList();
-
-        public ProdutoModel? ObterPorId(int id) =>
-            _db.Produtos.FirstOrDefault(p => p.Id == id);
-
-        public ProdutoModel? ObterPorCodigo(string codigo) =>
-            _db.Produtos.FirstOrDefault(p => p.Codigo == codigo);
-
-        public void Adicionar(ProdutoModel produto) => _db.Produtos.Add(produto);
 
         public void SalvarAlteracoes() => _db.SaveChanges();
     }

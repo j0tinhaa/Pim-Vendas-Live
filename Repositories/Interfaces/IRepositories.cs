@@ -15,17 +15,9 @@ namespace LiveStore.Repositories.Interfaces
     {
         IEnumerable<VendaModel> ObterPorLive(int liveId);
         VendaModel? ObterPorId(int id);
+        bool ExisteCodigoNaLive(int liveId, string codigo, int? excetoVendaId);
         void Adicionar(VendaModel venda);
         void Remover(VendaModel venda);
-        void SalvarAlteracoes();
-    }
-
-    public interface IProdutoRepository
-    {
-        IEnumerable<ProdutoModel> ObterTodos();
-        ProdutoModel? ObterPorId(int id);
-        ProdutoModel? ObterPorCodigo(string codigo);
-        void Adicionar(ProdutoModel produto);
         void SalvarAlteracoes();
     }
 

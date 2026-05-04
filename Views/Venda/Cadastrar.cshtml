@@ -36,26 +36,29 @@
                 <div class="form-text text-muted">Se a cliente não existir, será cadastrada automaticamente.</div>
             </div>
 
-            @* Código do produto *@
+            @* Código *@
             <div class="mb-3">
-                <label class="form-label text-light fw-semibold">Código do Produto</label>
-                <div class="input-group">
-                    <input type="text" class="form-control font-monospace text-uppercase" asp-for="CodigoProduto"
-                           placeholder="Ex: ROSA-001" autocomplete="off" />
-                    <button type="button" class="btn btn-outline-secondary" id="btnBuscarProduto" title="Buscar Produto">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-                <span class="text-danger small" asp-validation-for="CodigoProduto"></span>
-                <div id="produtoFeedback" class="form-text"></div>
+                <label class="form-label text-light fw-semibold">Código</label>
+                <input type="text" class="form-control font-monospace text-uppercase" asp-for="Codigo"
+                       placeholder="Ex: brilho" autocomplete="off" />
+                <span class="text-danger small" asp-validation-for="Codigo"></span>
+                <div class="form-text text-muted">Código único dentro desta live.</div>
             </div>
 
-            @* Nome do produto *@
+            @* Nome *@
             <div class="mb-3">
                 <label class="form-label text-light fw-semibold">Nome do Produto</label>
-                <input type="text" class="form-control" asp-for="NomeProduto"
+                <input type="text" class="form-control" asp-for="Nome"
                        placeholder="Ex: Blusa floral rosa P" />
-                <span class="text-danger small" asp-validation-for="NomeProduto"></span>
+                <span class="text-danger small" asp-validation-for="Nome"></span>
+            </div>
+
+            @* Descrição *@
+            <div class="mb-3">
+                <label class="form-label text-light fw-semibold">Descrição <small class="text-muted">(opcional)</small></label>
+                <textarea class="form-control" asp-for="Descricao" rows="2"
+                          placeholder="Cor, tamanho, detalhes..."></textarea>
+                <span class="text-danger small" asp-validation-for="Descricao"></span>
             </div>
 
             @* Valor *@
@@ -80,7 +83,7 @@
             <div class="mb-4">
                 <label class="form-label text-light fw-semibold">Observações <small class="text-muted">(opcional)</small></label>
                 <textarea class="form-control" asp-for="Observacoes" rows="2"
-                          placeholder="Endereço, forma de pagamento, tamanho..."></textarea>
+                          placeholder="Endereço, forma de pagamento..."></textarea>
             </div>
 
             <div class="d-flex gap-3">
@@ -95,34 +98,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        $(function() {
-            function buscarProdutoManualmente() {
-                const codigo = $('#CodigoProduto').val().trim();
-                if (!codigo) return;
-
-                $.get('/Venda/BuscarProduto', { codigo: codigo })
-                    .done(function(p) {
-                        $('#NomeProduto').val(p.nome);
-                        // Ajusta o valor para o formato numérico sem formatação string local do pt-BR para o input number
-                        $('#Valor').val(p.preco.toFixed(2).replace('.', ','));
-                        $('#produtoFeedback').html(`<span class="text-success"><i class="bi bi-check-circle"></i> Produto encontrado: <strong>${p.nome}</strong></span>`);
-                    })
-                    .fail(function() {
-                        $('#produtoFeedback').html(`<span class="text-warning"><i class="bi bi-exclamation-circle"></i> Código não encontrado. Preencha manualmente.</span>`);
-                    });
-            }
-
-            $('#btnBuscarProduto').on('click', buscarProdutoManualmente);
-
-            $('#CodigoProduto').on('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    buscarProdutoManualmente();
-                }
-            });
-            
-            // Impede que o form seja submetido se o usuário apertar Enter em qualquer lugar além do botão submit (opcional, já tratado acima para o CodigoProduto)
-        });
-    </script>
 }

@@ -153,7 +153,7 @@
                                     <tr>
                                         <td><small class="text-pink">@(v.Cliente?.Nome ?? v.ClienteInstagramFormatado)</small>
                                         </td>
-                                        <td><small>@v.CodigoProduto — @v.NomeProduto</small></td>
+                                        <td><small>@v.Codigo — @v.Nome</small></td>
                                         <td><small>@v.Valor.ToString("C2", new
                                         System.Globalization.CultureInfo("pt-BR"))</small></td>
                                         <td>@Html.Raw(BadgeStatus(v.Status))</td>

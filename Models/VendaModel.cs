@@ -23,22 +23,19 @@ namespace LiveStore.Models
         public string ClienteInstagramFormatado =>
             "@" + ClienteInstagram.Replace("@", "");
 
-        // FK — Produto (opcional: pode digitar código manualmente)
-        [Display(Name = "Produto")]
-        public int? ProdutoId { get; set; }
-        public ProdutoModel? Produto { get; set; }
-
-        // Campos desnormalizados para histórico
-        // (preserva dados mesmo se produto for editado depois)
         [Required(ErrorMessage = "Informe o código do produto!")]
         [StringLength(30)]
-        [Display(Name = "Código do Produto")]
-        public string CodigoProduto { get; set; } = string.Empty;
+        [Display(Name = "Código")]
+        public string Codigo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Informe o nome do produto!")]
         [StringLength(150)]
         [Display(Name = "Produto")]
-        public string NomeProduto { get; set; } = string.Empty;
+        public string Nome { get; set; } = string.Empty;
+
+        [StringLength(500)]
+        [Display(Name = "Descrição")]
+        public string? Descricao { get; set; }
 
         [Required(ErrorMessage = "Informe o valor!")]
         [Range(0.01, 99999.99, ErrorMessage = "Valor deve estar entre R$ 0,01 e R$ 99.999,99.")]

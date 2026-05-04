@@ -10,7 +10,6 @@ namespace LiveStore.Data
 
         public DbSet<LiveModel> Lives { get; set; } = null!;
         public DbSet<VendaModel> Vendas { get; set; } = null!;
-        public DbSet<ProdutoModel> Produtos { get; set; } = null!;
         public DbSet<ClienteModel> Clientes { get; set; } = null!;
         public DbSet<GastoMensalModel> Gastos { get; set; } = null!;
         public DbSet<ClienteLiveRelatorioModel> RelatoriosEnviados { get; set; } = null!;
@@ -53,16 +52,9 @@ namespace LiveStore.Data
                 .HasForeignKey(v => v.LiveId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Venda → Produto (muitos para um, opcional)
+            // Unicidade: (LiveId, Codigo) na Venda
             modelBuilder.Entity<VendaModel>()
-                .HasOne(v => v.Produto)
-                .WithMany(p => p.Vendas)
-                .HasForeignKey(v => v.ProdutoId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // Índice único: código do produto
-            modelBuilder.Entity<ProdutoModel>()
-                .HasIndex(p => p.Codigo)
+                .HasIndex(v => new { v.LiveId, v.Codigo })
                 .IsUnique();
         }
     }

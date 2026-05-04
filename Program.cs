@@ -29,7 +29,6 @@ builder.Services.AddAuthentication("LiveStoreCookie")
 // ── Repositórios ─────────────────────────────────────────────────────────────
 builder.Services.AddScoped<ILiveRepository,    LiveRepository>();
 builder.Services.AddScoped<IVendaRepository,   VendaRepository>();
-builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IGastoRepository,   GastoRepository>();
 
@@ -37,7 +36,6 @@ builder.Services.AddScoped<IGastoRepository,   GastoRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ILiveService,      LiveService>();
 builder.Services.AddScoped<IVendaService,     VendaService>();
-builder.Services.AddScoped<IProdutoService,   ProdutoService>();
 builder.Services.AddScoped<IClienteService,   ClienteService>();
 builder.Services.AddScoped<IGastoService,     GastoService>();
 builder.Services.AddScoped<IRelatorioService, RelatorioService>();

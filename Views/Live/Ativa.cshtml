@@ -61,8 +61,8 @@
                 {
                     <tr>
                         <td><span class="text-pink fw-bold">@v.ClienteInstagramFormatado</span></td>
-                        <td><code>@v.CodigoProduto</code></td>
-                        <td>@v.NomeProduto</td>
+                        <td><code>@v.Codigo</code></td>
+                        <td>@v.Nome</td>
                         <td>@v.Valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
                         <td>@v.DataVenda.ToString("HH:mm")</td>
                         <td>@Html.Raw(BadgeStatus(v.Status))</td>
@@ -73,7 +73,7 @@
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <button type="button" class="btn btn-danger btn-sm" title="Excluir"
-                                        onclick="confirmarExclusao('/Venda/Excluir', 'Tem certeza que deseja excluir esta venda do produto @v.NomeProduto?', { id: @v.Id, liveId: @liveId })">
+                                        onclick="confirmarExclusao('/Venda/Excluir', 'Tem certeza que deseja excluir esta venda do produto @v.Nome?', { id: @v.Id, liveId: @liveId })">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>

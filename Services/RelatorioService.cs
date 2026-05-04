@@ -108,19 +108,16 @@ namespace LiveStore.Services
                                         _                     => "#f59e0b"
                                     };
 
-                                    // Coluna Produto (com sub-info)
+                                    // Coluna Produto (com descrição opcional)
                                     table.Cell().Background(bg).Padding(7).Column(c =>
                                     {
-                                        c.Item().Text(v.NomeProduto).FontSize(10);
-                                        var info = new List<string>();
-                                        if (!string.IsNullOrWhiteSpace(v.Produto?.Cor))  info.Add($"Cor: {v.Produto.Cor}");
-                                        if (!string.IsNullOrWhiteSpace(v.Produto?.Tipo)) info.Add($"Tipo: {v.Produto.Tipo}");
-                                        if (info.Any())
-                                            c.Item().Text(string.Join(" | ", info)).FontSize(8).FontColor("#aaa0cc");
+                                        c.Item().Text(v.Nome).FontSize(10);
+                                        if (!string.IsNullOrWhiteSpace(v.Descricao))
+                                            c.Item().Text(v.Descricao).FontSize(8).FontColor("#aaa0cc");
                                     });
 
                                     table.Cell().Background(bg).Padding(7)
-                                        .Text(v.CodigoProduto).FontSize(9).FontColor("#aaa0cc");
+                                        .Text(v.Codigo).FontSize(9).FontColor("#aaa0cc");
 
                                     table.Cell().Background(bg).Padding(7).AlignRight()
                                         .Text(v.Valor.ToString("C2", ptBR)).FontSize(10).FontColor("#22c55e");

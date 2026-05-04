@@ -20,19 +20,10 @@ namespace LiveStore.Services.Interfaces
     {
         IEnumerable<VendaModel> ObterPorLive(int liveId);
         VendaModel? ObterPorId(int id);
+        bool ExisteCodigoNaLive(int liveId, string codigo, int? excetoVendaId = null);
         ResultadoVenda RegistrarVenda(NovaVendaInput input);
-        bool EditarVenda(int id, EditarVendaInput input);
+        ResultadoVenda EditarVenda(int id, EditarVendaInput input);
         bool ExcluirVenda(int id);
-    }
-
-    public interface IProdutoService
-    {
-        IEnumerable<ProdutoModel> ObterTodos();
-        ProdutoModel? ObterPorId(int id);
-        ProdutoModel? ObterPorCodigo(string codigo);
-        void Cadastrar(ProdutoModel produto);
-        bool Editar(ProdutoModel produto);
-        bool Excluir(int id);
     }
 
     public interface IClienteService
@@ -106,23 +97,25 @@ namespace LiveStore.Services.Interfaces
 
     public class NovaVendaInput
     {
-        public int    LiveId          { get; set; }
+        public int    LiveId           { get; set; }
         public string ClienteInstagram { get; set; } = string.Empty;
-        public string CodigoProduto   { get; set; } = string.Empty;
-        public string NomeProduto     { get; set; } = string.Empty;
-        public decimal Valor          { get; set; }
-        public StatusVenda Status     { get; set; } = StatusVenda.Reservado;
-        public string? Observacoes    { get; set; }
+        public string Codigo           { get; set; } = string.Empty;
+        public string Nome             { get; set; } = string.Empty;
+        public string? Descricao       { get; set; }
+        public decimal Valor           { get; set; }
+        public StatusVenda Status      { get; set; } = StatusVenda.Reservado;
+        public string? Observacoes     { get; set; }
     }
 
     public class EditarVendaInput
     {
         public string ClienteInstagram { get; set; } = string.Empty;
-        public string CodigoProduto   { get; set; } = string.Empty;
-        public string NomeProduto     { get; set; } = string.Empty;
-        public decimal Valor          { get; set; }
-        public StatusVenda Status     { get; set; }
-        public string? Observacoes    { get; set; }
+        public string Codigo           { get; set; } = string.Empty;
+        public string Nome             { get; set; } = string.Empty;
+        public string? Descricao       { get; set; }
+        public decimal Valor           { get; set; }
+        public StatusVenda Status      { get; set; }
+        public string? Observacoes     { get; set; }
     }
 
     public class ResultadoVenda

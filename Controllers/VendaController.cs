@@ -8,19 +8,16 @@ namespace LiveStore.Controllers
     [Authorize]
     public class VendaController : Controller
     {
-        private readonly IVendaService  _vendaService;
-        private readonly ILiveService   _liveService;
-        private readonly IProdutoService _produtoService;
-        private readonly IClienteService _clienteService;
+        private readonly IVendaService    _vendaService;
+        private readonly ILiveService     _liveService;
+        private readonly IClienteService  _clienteService;
 
         public VendaController(IVendaService vendaService,
                                ILiveService liveService,
-                               IProdutoService produtoService,
                                IClienteService clienteService)
         {
             _vendaService   = vendaService;
             _liveService    = liveService;
-            _produtoService = produtoService;
             _clienteService = clienteService;
         }
 
@@ -31,8 +28,7 @@ namespace LiveStore.Controllers
             var live = _liveService.ObterPorId(liveId);
             if (live == null) return NotFound();
 
-            ViewBag.Live     = live;
-            ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
+            ViewBag.Live = live;
             return View(new NovaVendaInput { LiveId = liveId });
         }
 
@@ -43,12 +39,18 @@ namespace LiveStore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Live     = _liveService.ObterPorId(input.LiveId);
-                ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
+                ViewBag.Live = _liveService.ObterPorId(input.LiveId);
                 return View(input);
             }
 
             var resultado = _vendaService.RegistrarVenda(input);
+
+            if (!resultado.Sucesso)
+            {
+                ModelState.AddModelError(nameof(input.Codigo), resultado.Erro ?? "Erro ao registrar venda.");
+                ViewBag.Live = _liveService.ObterPorId(input.LiveId);
+                return View(input);
+            }
 
             if (resultado.ClienteCriado)
                 TempData["MensagemInfo"] = $"Cliente @{input.ClienteInstagram} cadastrado automaticamente.";
@@ -64,13 +66,12 @@ namespace LiveStore.Controllers
             var venda = _vendaService.ObterPorId(id);
             if (venda == null) return NotFound();
 
-            ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
-
             var input = new EditarVendaInput
             {
                 ClienteInstagram = venda.ClienteInstagram,
-                CodigoProduto    = venda.CodigoProduto,
-                NomeProduto      = venda.NomeProduto,
+                Codigo           = venda.Codigo,
+                Nome             = venda.Nome,
+                Descricao        = venda.Descricao,
                 Valor            = venda.Valor,
                 Status           = venda.Status,
                 Observacoes      = venda.Observacoes
@@ -88,13 +89,17 @@ namespace LiveStore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Produtos = _produtoService.ObterTodos().Where(p => p.Ativo);
-                ViewBag.VendaId  = id;
+                ViewBag.VendaId = id;
                 return View(input);
             }
 
-            var sucesso = _vendaService.EditarVenda(id, input);
-            if (!sucesso) return NotFound();
+            var resultado = _vendaService.EditarVenda(id, input);
+            if (!resultado.Sucesso)
+            {
+                ModelState.AddModelError(nameof(input.Codigo), resultado.Erro ?? "Erro ao editar venda.");
+                ViewBag.VendaId = id;
+                return View(input);
+            }
 
             TempData["MensagemSucesso"] = "Venda atualizada!";
 
@@ -122,21 +127,6 @@ namespace LiveStore.Controllers
             return RedirectToAction("Detalhes", "Live", new { id = liveId });
         }
 
-        // GET /Venda/BuscarProduto?codigo=ROSA-001  (AJAX)
-        [HttpGet]
-        public IActionResult BuscarProduto(string codigo)
-        {
-            var produto = _produtoService.ObterPorCodigo(codigo.ToUpper());
-            if (produto == null) return NotFound();
-
-            return Json(new
-            {
-                id    = produto.Id,
-                nome  = produto.Nome,
-                preco = produto.Preco
-            });
-        }
-
         // GET /Venda/BuscarClientes?term=abc (AJAX Autocomplete)
         [HttpGet]
         public IActionResult BuscarClientes(string term)
@@ -146,34 +136,14 @@ namespace LiveStore.Controllers
 
             var clientes = _clienteService.ObterTodos()
                 .Where(c => c.InstagramUser.Contains(term) || (c.Nome != null && c.Nome.ToLower().Contains(term)))
-                .Select(c => new { 
-                    instagram = c.ClienteInstagramFormatado, 
-                    nome = c.Nome 
+                .Select(c => new {
+                    instagram = c.ClienteInstagramFormatado,
+                    nome = c.Nome
                 })
                 .Take(10)
                 .ToList();
 
             return Json(clientes);
-        }
-
-        // GET /Venda/BuscarProdutosApi?term=abc (AJAX Autocomplete)
-        [HttpGet]
-        public IActionResult BuscarProdutosApi(string term)
-        {
-            if (string.IsNullOrWhiteSpace(term)) return Json(new object[] {});
-            term = term.Trim().ToLower();
-
-            var produtos = _produtoService.ObterTodos()
-                .Where(p => p.Ativo && (p.Codigo.ToLower().Contains(term) || p.Nome.ToLower().Contains(term)))
-                .Select(p => new { 
-                    codigo = p.Codigo, 
-                    nome = p.Nome,
-                    preco = p.Preco
-                })
-                .Take(10)
-                .ToList();
-
-            return Json(produtos);
         }
     }
 }

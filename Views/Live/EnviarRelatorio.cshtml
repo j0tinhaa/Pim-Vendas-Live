@@ -125,12 +125,12 @@
                             <div class="mt-2 ps-1">
                                 @foreach (var v in item.Vendas.Take(3))
                                 {
-                                    var nomeCurto = v.NomeProduto.Length > 24
-                                        ? v.NomeProduto.Substring(0, 24) + "…"
-                                        : v.NomeProduto;
+                                    var nomeCurto = v.Nome.Length > 24
+                                        ? v.Nome.Substring(0, 24) + "…"
+                                        : v.Nome;
                                     <span class="badge me-1 mb-1"
                                           style="background:#241e4a;color:#aaa0cc;font-size:0.7rem">
-                                        <code class="text-pink" style="font-size:0.65rem">@v.CodigoProduto</code>
+                                        <code class="text-pink" style="font-size:0.65rem">@v.Codigo</code>
                                         @nomeCurto
                                     </span>
                                 }

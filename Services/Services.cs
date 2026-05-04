@@ -38,7 +38,7 @@ namespace LiveStore.Services
             // Métricas Inteligentes
             decimal faturamentoMes = vendasAtivas.Where(v => v.DataVenda.Year == hoje.Year && v.DataVenda.Month == hoje.Month).Sum(v => v.Valor);
             var gastosMes = _gastoRepo.ObterTodos().Where(g => g.Data.Year == hoje.Year && g.Data.Month == hoje.Month).Sum(g => g.Valor);
-            
+
             decimal ticketMedio = vendasAtivas.Count > 0 ? vendasAtivas.Average(v => v.Valor) : 0;
 
             TimeSpan? melhorHorario = null;
@@ -64,7 +64,7 @@ namespace LiveStore.Services
                 LiveMaiorFaturamento = liveMaiorFat,
                 LiveAtiva            = _liveRepo.ObterAtiva(),
                 UltimasVendas        = todasVendas.OrderByDescending(v => v.DataVenda).Take(6).ToList(),
-                
+
                 TicketMedio       = ticketMedio,
                 TotalGastosMes    = gastosMes,
                 LucroLiquidoMes   = faturamentoMes - gastosMes,
@@ -123,15 +123,12 @@ namespace LiveStore.Services
     {
         private readonly IVendaRepository   _vendaRepo;
         private readonly IClienteRepository _clienteRepo;
-        private readonly IProdutoRepository _produtoRepo;
 
         public VendaService(IVendaRepository vendaRepo,
-                            IClienteRepository clienteRepo,
-                            IProdutoRepository produtoRepo)
+                            IClienteRepository clienteRepo)
         {
             _vendaRepo   = vendaRepo;
             _clienteRepo = clienteRepo;
-            _produtoRepo = produtoRepo;
         }
 
         public IEnumerable<VendaModel> ObterPorLive(int liveId) =>
@@ -139,8 +136,25 @@ namespace LiveStore.Services
 
         public VendaModel? ObterPorId(int id) => _vendaRepo.ObterPorId(id);
 
+        public bool ExisteCodigoNaLive(int liveId, string codigo, int? excetoVendaId = null)
+        {
+            var cod = (codigo ?? string.Empty).Trim().ToUpper();
+            return _vendaRepo.ExisteCodigoNaLive(liveId, cod, excetoVendaId);
+        }
+
         public ResultadoVenda RegistrarVenda(NovaVendaInput input)
         {
+            var codigo = input.Codigo.Trim().ToUpper();
+
+            if (_vendaRepo.ExisteCodigoNaLive(input.LiveId, codigo, null))
+            {
+                return new ResultadoVenda
+                {
+                    Sucesso = false,
+                    Erro    = "Código já usado nesta live."
+                };
+            }
+
             bool clienteCriado = false;
 
             // Cadastro automático de cliente
@@ -155,43 +169,14 @@ namespace LiveStore.Services
                 clienteCriado = true;
             }
 
-            // Busca ou cria produto automaticamente pelo código
-            var codigoProduto = input.CodigoProduto.Trim().ToUpper();
-            string nomeProduto = input.NomeProduto.Trim();
-            decimal valor      = input.Valor;
-
-            var produto = _produtoRepo.ObterPorCodigo(codigoProduto);
-            if (produto == null)
-            {
-                // Cadastro automático: cria com os dados informados na venda
-                produto = new ProdutoModel
-                {
-                    Codigo   = codigoProduto,
-                    Nome     = string.IsNullOrWhiteSpace(nomeProduto) ? codigoProduto : nomeProduto,
-                    Preco    = valor,
-                    Ativo    = true,
-                    CriadoEm = DateTime.Now
-                };
-                _produtoRepo.Adicionar(produto);
-                _produtoRepo.SalvarAlteracoes();
-            }
-            else
-            {
-                // Produto encontrado: preenche nome/valor se não informados
-                if (string.IsNullOrWhiteSpace(nomeProduto)) nomeProduto = produto.Nome;
-                if (valor <= 0) valor = produto.Preco;
-            }
-
-            int? produtoId = produto.Id;
-
             var venda = new VendaModel
             {
                 LiveId           = input.LiveId,
                 ClienteInstagram = instagram,
-                ProdutoId        = produtoId,
-                CodigoProduto    = codigoProduto,
-                NomeProduto      = nomeProduto,
-                Valor            = valor,
+                Codigo           = codigo,
+                Nome             = input.Nome.Trim(),
+                Descricao        = input.Descricao?.Trim(),
+                Valor            = input.Valor,
                 Status           = input.Status,
                 Observacoes      = input.Observacoes?.Trim(),
                 DataVenda        = DateTime.Now,
@@ -209,10 +194,21 @@ namespace LiveStore.Services
             };
         }
 
-        public bool EditarVenda(int id, EditarVendaInput input)
+        public ResultadoVenda EditarVenda(int id, EditarVendaInput input)
         {
             var venda = _vendaRepo.ObterPorId(id);
-            if (venda == null) return false;
+            if (venda == null) return new ResultadoVenda { Sucesso = false, Erro = "Venda não encontrada." };
+
+            var codigo = input.Codigo.Trim().ToUpper();
+
+            if (_vendaRepo.ExisteCodigoNaLive(venda.LiveId, codigo, id))
+            {
+                return new ResultadoVenda
+                {
+                    Sucesso = false,
+                    Erro    = "Código já usado nesta live."
+                };
+            }
 
             var instagram = input.ClienteInstagram.Trim().ToLower();
             if (!instagram.StartsWith("@")) instagram = "@" + instagram;
@@ -224,19 +220,17 @@ namespace LiveStore.Services
                 _clienteRepo.SalvarAlteracoes();
             }
 
-            var produto = _produtoRepo.ObterPorCodigo(input.CodigoProduto.Trim().ToUpper());
-
             venda.ClienteInstagram = instagram;
-            venda.ProdutoId        = produto?.Id;
-            venda.CodigoProduto    = input.CodigoProduto.Trim().ToUpper();
-            venda.NomeProduto      = input.NomeProduto.Trim();
+            venda.Codigo           = codigo;
+            venda.Nome             = input.Nome.Trim();
+            venda.Descricao        = input.Descricao?.Trim();
             venda.Valor            = input.Valor;
             venda.Status           = input.Status;
             venda.Observacoes      = input.Observacoes?.Trim();
             venda.DataAtualizacao  = DateTime.Now;
 
             _vendaRepo.SalvarAlteracoes();
-            return true;
+            return new ResultadoVenda { Sucesso = true, Venda = venda };
         }
 
         public bool ExcluirVenda(int id)
@@ -246,52 +240,6 @@ namespace LiveStore.Services
 
             _vendaRepo.Remover(venda);
             _vendaRepo.SalvarAlteracoes();
-            return true;
-        }
-    }
-
-    // ── Produto ──────────────────────────────────────────────────────────────
-    public class ProdutoService : IProdutoService
-    {
-        private readonly IProdutoRepository _repo;
-        public ProdutoService(IProdutoRepository repo) => _repo = repo;
-
-        public IEnumerable<ProdutoModel> ObterTodos()           => _repo.ObterTodos();
-        public ProdutoModel? ObterPorId(int id)                 => _repo.ObterPorId(id);
-        public ProdutoModel? ObterPorCodigo(string codigo)      => _repo.ObterPorCodigo(codigo);
-
-        public void Cadastrar(ProdutoModel produto)
-        {
-            produto.Codigo  = produto.Codigo.Trim().ToUpper();
-            produto.CriadoEm = DateTime.Now;
-            _repo.Adicionar(produto);
-            _repo.SalvarAlteracoes();
-        }
-
-        public bool Editar(ProdutoModel produto)
-        {
-            var existente = _repo.ObterPorId(produto.Id);
-            if (existente == null) return false;
-
-            existente.Codigo   = produto.Codigo.Trim().ToUpper();
-            existente.Nome     = produto.Nome.Trim();
-            existente.Preco    = produto.Preco;
-            existente.Tipo     = produto.Tipo?.Trim();
-            existente.Cor      = produto.Cor?.Trim();
-            existente.Tamanho  = produto.Tamanho?.Trim();
-            existente.Ativo    = produto.Ativo;
-
-            _repo.SalvarAlteracoes();
-            return true;
-        }
-
-        public bool Excluir(int id)
-        {
-            var produto = _repo.ObterPorId(id);
-            if (produto == null) return false;
-
-            produto.Ativo = false; // soft delete: não exclui do banco
-            _repo.SalvarAlteracoes();
             return true;
         }
     }

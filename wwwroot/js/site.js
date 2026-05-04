@@ -99,25 +99,9 @@ function setupAutocomplete(inputSelector, dataUrl, itemRenderer, onSelect) {
 }
 
 $(function() {
-    setupAutocomplete('#ClienteInstagram', '/Venda/BuscarClientes', 
+    setupAutocomplete('#ClienteInstagram', '/Venda/BuscarClientes',
         (c) => `<div><strong>${c.instagram}</strong> <span class="text-muted">${c.nome ? '- ' + c.nome : ''}</span></div>`,
         (c, $input) => $input.val(c.instagram)
-    );
-
-    setupAutocomplete('#CodigoProduto', '/Venda/BuscarProdutosApi', 
-        (p) => `<div><strong>${p.codigo}</strong> - ${p.nome} <span class="text-pink fw-bold float-end">R$ ${p.preco.toFixed(2).replace('.',',')}</span></div>`,
-        (p, $input) => {
-            $input.val(p.codigo);
-            // Preenche os outros campos
-            const $nome = $('#NomeProduto');
-            if ($nome.length && $nome.val() === '') $nome.val(p.nome);
-            
-            const $valor = $('#Valor');
-            if ($valor.length) {
-                // Remove formatação se houver
-                $valor.val(p.preco.toFixed(2).replace('.', ','));
-            }
-        }
     );
 });
 
